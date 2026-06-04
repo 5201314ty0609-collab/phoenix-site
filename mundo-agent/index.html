@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUNDO Agent v1.2.0 — THE EMPEROR | PHOENIX</title>
+<style>
+:root{--bg:#0d0d16;--surface:rgba(255,255,255,0.03);--border:rgba(255,255,255,0.06);--text:#e8e8ed;--dim:rgba(255,255,255,0.42);--gold:#f59e0b;--gold-dim:#d97706}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.7;padding:20px}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(245,158,11,0.1) 0%,transparent 60%);pointer-events:none;z-index:0}
+.container{max-width:900px;margin:0 auto;position:relative;z-index:1}
+.back-link{position:fixed;top:16px;left:16px;z-index:999;display:inline-flex;align-items:center;gap:4px;background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.25);padding:6px 14px;border-radius:20px;text-decoration:none;font-size:13px;font-weight:600;backdrop-filter:blur(8px)}
+.back-link:hover{background:rgba(245,158,11,0.25)}
+.hero{text-align:center;padding:60px 0 40px}
+.hero h1{font-size:42px;font-weight:800;background:linear-gradient(135deg,#f59e0b,#d97706,#b45309);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero .tag{font-size:16px;color:var(--dim)}
+.hero .author{margin-top:12px;font-size:13px;color:var(--dim)}.hero .author a{color:var(--gold)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin:30px 0}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;transition:all 0.2s}
+.card:hover{border-color:rgba(245,158,11,0.2);transform:translateY(-2px)}
+.card h3{font-size:14px;color:var(--gold);margin-bottom:8px}
+.card p,.card li{font-size:13px;color:var(--dim);line-height:1.6}
+.card ul{padding-left:16px;margin-top:6px}
+.section{margin:36px 0}
+.section h2{font-size:20px;color:var(--gold);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid rgba(245,158,11,0.1)}
+.footer{text-align:center;padding:40px 0 20px;font-size:12px;color:var(--dim)}
+.footer a{color:var(--gold)}
+</style>
+</head>
+<body>
+<a href="../" class="back-link">🐦‍🔥 返回 PHOENIX</a>
+<div class="container">
+<div class="hero">
+<h1>MUNDO Agent v1.2.0</h1>
+<div class="tag">THE EMPEROR · 独立 AI Agent 编排系统</div>
+<div class="author">作者: <a href="https://github.com/LiHongwei-cn" target="_blank">LiHongwei</a> | <a href="https://github.com/LiHongwei-cn/lihongwei-cn" target="_blank">GitHub ↗</a></div>
+</div>
+
+<div class="grid">
+<div class="card"><h3>🤖 Agentic Loop</h3><p>思考 → 行动 → 观察 → 重复。无中间报告，直接交付结果。</p></div>
+<div class="card"><h3>🌐 28 模型支持</h3><p>DeepSeek · Claude · Gemini · GPT-4o · MiMo · Qwen · GLM · Kimi · Grok 等</p></div>
+<div class="card"><h3>🔧 10 内置工具</h3><p>终端 · 文件读写 · 搜索 · 网络 · Git · Python 执行 · HTTP · JSON · 代码分析</p></div>
+<div class="card"><h3>🧠 六层记忆</h3><p>自动提取 · FTS5 搜索 · 代码模式 · Agent 记录 · 项目隔离 · 自我整理</p></div>
+</div>
+
+<div class="section">
+<h2>🏗️ 架构 (13 Python 模块)</h2>
+<div class="grid">
+<div class="card"><h3>mundo.py</h3><p>CLI 入口 · 状态栏 · 启动引导</p></div>
+<div class="card"><h3>core.py</h3><p>Agentic Loop 引擎 · 预算控制 · 上下文压缩</p></div>
+<div class="card"><h3>llm.py</h3><p>28 Provider 统一客户端 · 流式 · 消息清洗</p></div>
+<div class="card"><h3>tools.py</h3><p>插件式工具注册表 · 参数验证 · 结果截断</p></div>
+<div class="card"><h3>memory.py</h3><p>六层 SQLite 记忆 · FTS5 搜索 · 自我整理</p></div>
+<div class="card"><h3>delegation.py</h3><p>多 Agent 调度 · 任务拆分 · 并行执行 · 结果汇总</p></div>
+</div>
+</div>
+
+<div class="section">
+<h2>⚡ 核心创新</h2>
+<div class="grid">
+<div class="card"><h3>IterationBudget</h3><p>Token 预算控制：70% 警告 · 85% 强制压缩。从 Hermes 借鉴的核心机制。</p></div>
+<div class="card"><h3>ContextCompressor</h3><p>智能压缩：优先压缩 tool 输出，保留 user/assistant 对话完整性。</p></div>
+<div class="card"><h3>TaskDelegator</h3><p>复杂任务自动拆分 → ThreadPoolExecutor 并行 → LLM 汇总去重。Agent 失败自动 fallback。</p></div>
+<div class="card"><h3>Security Approval</h3><p>三级安全分类：danger(阻断) / caution(警告) / safe(允许)。17 种危险模式。</p></div>
+<div class="card"><h3>Affective Intelligence</h3><p>系统提示级情感智慧：先共情再解决 · 命名情绪 · 简洁关怀。</p></div>
+<div class="card"><h3>MundoClone</h3><p>分身系统：主 LLM 驱动多个克隆并行执行子任务，失败自动重试。</p></div>
+</div>
+</div>
+
+<div class="section">
+<h2>🎯 与 PHOENIX 的关系</h2>
+<div class="card" style="border-color:rgba(245,158,11,0.2);background:rgba(245,158,11,0.03)">
+<p>MUNDO Agent 是 PHOENIX 的核心融合来源之一。PHOENIX 吸收了 MUNDO 的：</p>
+<ul style="margin-top:8px">
+<li><strong>IterationBudget</strong> → PHOENIX O2 Sense (上下文预算感知)</li>
+<li><strong>ContextCompressor</strong> → PHOENIX 的压缩策略 (优先 tool 输出)</li>
+<li><strong>六层记忆</strong> → PHOENIX Soul/Shadow 持久化</li>
+<li><strong>情感智慧</strong> → PHOENIX CLAUDE.md 铁律</li>
+<li><strong>失败教训权重</strong> → PHOENIX shadow.json (importance 9 > 7)</li>
+<li><strong>多 Agent 调度</strong> → PHOENIX Agent Orchestration 表</li>
+</ul>
+</div>
+</div>
+
+<div class="footer">
+PHOENIX 融合生态的一部分 · <a href="https://github.com/LiHongwei-cn/lihongwei-cn" target="_blank">MUNDO Agent GitHub ↗</a>
+</div>
+</div>
+</body>
+</html>
