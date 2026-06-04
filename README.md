@@ -83,7 +83,7 @@ phoenix-site/
 
 ```bash
 # Clone the repository
-git clone https://github.com/holyty/phoenix-site.git
+git clone https://github.com/5201314ty0609-collab/phoenix-site.git
 cd phoenix-site
 
 # Run the 7-sense monitor
