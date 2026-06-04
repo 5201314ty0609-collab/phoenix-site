@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="HolyTy — PHOENIX Self-Evolving Agent · AI 工具开发 · 持续自主进化">
+<title>HolyTy · PHOENIX</title>
+<style>
+:root {
+  --bg: #0d0d16;
+  --surface: rgba(255,255,255,0.03);
+  --surface-hover: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.05);
+  --border-hover: rgba(255,255,255,0.1);
+  --text: #e8e8ed;
+  --dim: rgba(255,255,255,0.42);
+  --faint: rgba(255,255,255,0.18);
+  --accent: #f59e0b;
+  --accent-fire: #f97316;
+  --accent-glow: rgba(245,158,11,0.15);
+  --fire-gradient: linear-gradient(135deg, #f59e0b, #f97316, #ef4444);
+  --purple: #818cf8;
+  --purple-glow: rgba(129,140,248,0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 56px 24px 40px;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Background effects */
+body::before {
+  content: '';
+  position: fixed;
+  top: -30%; left: -10%;
+  width: 120%; height: 130%;
+  background:
+    radial-gradient(ellipse at 25% 0%, rgba(245,158,11,0.14) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 15%, rgba(239,68,68,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 70%, rgba(249,115,22,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(129,140,248,0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* ====== Header ====== */
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.logo {
+  width: 88px; height: 88px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+  font-size: 44px;
+  background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(239,68,68,0.1));
+  box-shadow: 0 0 0 3px rgba(245,158,11,0.15), 0 8px 32px rgba(245,158,11,0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: logoPulse 3s ease-in-out infinite;
+}
+.logo:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 0 3px rgba(245,158,11,0.3), 0 16px 48px rgba(245,158,11,0.35);
+}
+
+@keyframes logoPulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(245,158,11,0.15), 0 8px 32px rgba(245,158,11,0.2); }
+  50% { box-shadow: 0 0 0 5px rgba(245,158,11,0.3), 0 16px 48px rgba(245,158,11,0.35); }
+}
+
+.name {
+  font-size: 26px;
+  font-weight: 750;
+  letter-spacing: -0.4px;
+  background: var(--fire-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: var(--dim);
+  margin-top: 5px;
+  letter-spacing: 0.2px;
+}
+
+.tagline {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--faint);
+  font-style: italic;
+}
+
+/* ====== Quick Stats ====== */
+.quick-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 32px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  text-align: center;
+  transition: all 0.25s;
+}
+.stat-card:hover {
+  border-color: rgba(245,158,11,0.2);
+  transform: translateY(-2px);
+}
+.stat-value {
+  font-size: 24px;
+  font-weight: 750;
+  background: var(--fire-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.stat-label {
+  font-size: 11px;
+  color: var(--dim);
+  margin-top: 4px;
+}
+
+/* ====== Lifecycle ====== */
+.lifecycle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 12px 0 28px;
+  flex-wrap: wrap;
+}
+.lc-stage {
+  padding: 7px 14px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  transition: transform 0.2s;
+}
+.lc-stage:hover { transform: scale(1.05); }
+.lc-active { background: rgba(100,116,139,0.2); color: #94a3b8; border: 1px solid rgba(100,116,139,0.3); }
+.lc-observed { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+.lc-validated { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+.lc-hardened { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+.lc-arrow { color: var(--faint); font-size: 13px; }
+
+/* ====== Section ====== */
+.cat-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 20px 18px 14px;
+  margin-bottom: 22px;
+  transition: border-color 0.25s, background 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.cat-section::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(245,158,11,0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.cat-section:hover::before { opacity: 1; }
+.cat-section:hover {
+  border-color: rgba(245,158,11,0.15);
+  background: rgba(255,255,255,0.04);
+}
+
+.cat-section.phoenix-section::before {
+  background: linear-gradient(90deg, transparent, rgba(245,158,11,0.2), transparent);
+}
+
+.cat-label {
+  display: flex; align-items: center; gap: 9px;
+  font-size: 13px; font-weight: 700; color: var(--text);
+  margin-bottom: 16px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  letter-spacing: 0.3px;
+}
+
+.nav-grid {
+  display: flex; flex-direction: column; gap: 7px;
+}
+
+/* ====== Cards ====== */
+.card {
+  display: flex; align-items: center; gap: 12px;
+  background: transparent; border: 1px solid transparent;
+  border-radius: 12px; padding: 11px 14px;
+  text-decoration: none; color: inherit;
+  transition: all 0.2s ease; cursor: pointer; position: relative;
+}
+.card:hover {
+  background: var(--surface-hover); border-color: var(--border);
+  transform: translateX(3px);
+}
+.card-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; flex-shrink: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover .card-icon {
+  transform: scale(1.08); box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.card-body { flex: 1; min-width: 0; }
+.card-title {
+  font-size: 13px; font-weight: 600; margin-bottom: 2px;
+  letter-spacing: -0.15px; color: var(--text);
+}
+.card-desc {
+  font-size: 11px; color: var(--dim);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.card-badge {
+  font-size: 10px; color: var(--faint); flex-shrink: 0;
+  opacity: 0; transition: opacity 0.2s;
+}
+.card:hover .card-badge { opacity: 1; }
+
+/* Gold glow for PHOENIX cards */
+.card-phoenix {
+  position: relative;
+  border: 1px solid rgba(245,158,11,0.15);
+  background: linear-gradient(135deg, rgba(245,158,11,0.03), rgba(249,115,22,0.01));
+}
+.card-phoenix::before {
+  content: '';
+  position: absolute; inset: -1px; border-radius: 12px;
+  background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(249,115,22,0.05), rgba(239,68,68,0.12));
+  z-index: -1; opacity: 0; transition: opacity 0.3s ease;
+  animation: phoenixGlow 3s ease-in-out infinite;
+}
+.card-phoenix:hover::before { opacity: 1; }
+.card-phoenix:hover {
+  border-color: rgba(245,158,11,0.3);
+  background: linear-gradient(135deg, rgba(245,158,11,0.06), rgba(249,115,22,0.02));
+}
+
+@keyframes phoenixGlow {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+
+/* Purple glow for external tools */
+.card-tool {
+  position: relative;
+  border: 1px solid rgba(129,140,248,0.1);
+  background: linear-gradient(135deg, rgba(129,140,248,0.02), rgba(99,102,241,0.01));
+}
+.card-tool:hover {
+  border-color: rgba(129,140,248,0.2);
+  background: linear-gradient(135deg, rgba(129,140,248,0.04), rgba(99,102,241,0.02));
+}
+
+/* ====== Feature Grid ====== */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px; margin-top: 10px;
+}
+.feature-item {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 10px 12px; border-radius: 10px;
+  background: transparent; transition: background 0.2s;
+}
+.feature-item:hover { background: var(--surface-hover); }
+.feature-emoji { font-size: 18px; flex-shrink: 0; width: 30px; text-align: center; }
+.feature-text { font-size: 12px; color: var(--dim); line-height: 1.6; }
+.feature-text strong { color: var(--text); font-weight: 600; }
+
+/* ====== Footer ====== */
+.footer {
+  text-align: center; font-size: 12px; color: var(--faint); padding-top: 8px;
+}
+.footer a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+.footer a:hover { color: #fbbf24; }
+.footer-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 12px; flex-wrap: wrap;
+}
+.footer-dot {
+  width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,0.08);
+}
+
+/* ====== Responsive ====== */
+@media (max-width: 640px) {
+  .quick-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .feature-grid { grid-template-columns: 1fr; }
+  .lifecycle { gap: 3px; }
+  .lc-stage { padding: 5px 8px; font-size: 10px; }
+  .lc-arrow { display: none; }
+  body { padding: 36px 16px 32px; }
+  .header { margin-bottom: 28px; }
+  .logo { width: 68px; height: 68px; font-size: 34px; }
+  .name { font-size: 20px; }
+  .cat-section { padding: 16px 14px 12px; }
+}
+
+/* ====== Entry Animations ====== */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.header      { animation: fadeUp 0.6s ease both; }
+.quick-stats { animation: fadeUp 0.6s ease 0.08s both; }
+.lifecycle   { animation: fadeUp 0.6s ease 0.12s both; }
+.cat-section { animation: fadeUp 0.6s ease both; }
+.cat-section:nth-child(1) { animation-delay: 0.16s; }
+.cat-section:nth-child(2) { animation-delay: 0.22s; }
+.cat-section:nth-child(3) { animation-delay: 0.28s; }
+.cat-section:nth-child(4) { animation-delay: 0.34s; }
+.cat-section:nth-child(5) { animation-delay: 0.40s; }
+.footer      { animation: fadeUp 0.6s ease 0.46s both; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ====== Header ====== -->
+  <div class="header">
+    <div class="logo">🐦‍🔥</div>
+    <div class="name">HolyTy · PHOENIX</div>
+    <div class="subtitle">Self-Evolving Agent Harness · AI 工具开发</div>
+    <div class="tagline">"每一段进化，都是从一次观察开始的"</div>
+  </div>
+
+  <!-- ====== Quick Stats ====== -->
+  <div class="quick-stats">
+    <div class="stat-card">
+      <div class="stat-value">7</div>
+      <div class="stat-label">七感监测 (Metacog)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">4</div>
+      <div class="stat-label">进化阶段</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">3</div>
+      <div class="stat-label">自进化引擎</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">5</div>
+      <div class="stat-label">融合来源</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">67</div>
+      <div class="stat-label">ECC Agents</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">∞</div>
+      <div class="stat-label">自主迭代</div>
+    </div>
+  </div>
+
+  <!-- ====== Framework Lifecycle ====== -->
+  <div class="lifecycle">
+    <div class="lc-stage lc-active">🔍 Active<br>检测模式</div>
+    <div class="lc-arrow">→</div>
+    <div class="lc-stage lc-observed">👁️ Observed<br>3+ 观察</div>
+    <div class="lc-arrow">→</div>
+    <div class="lc-stage lc-validated">✅ Validated<br>10+ 验证</div>
+    <div class="lc-arrow">→</div>
+    <div class="lc-stage lc-hardened">💎 Hardened<br>50+ 固化</div>
+  </div>
+
+  <!-- ====== PHOENIX Architecture ====== -->
+  <div class="cat-section phoenix-section">
+    <div class="cat-label">🐦‍🔥 PHOENIX — 自主进化架构</div>
+    <div class="feature-grid">
+      <div class="feature-item">
+        <div class="feature-emoji">🧠</div>
+        <div class="feature-text">
+          <strong>Metacognitive Observer</strong><br>
+          七感监测：O2 生命力 · Chronos 时间觉 · Nociception 痛觉 · Spatial 空间 · Vestibular 平衡 · Echo 重复 · Drift 漂移
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-emoji">🔄</div>
+        <div class="feature-text">
+          <strong>Evolution Engine</strong><br>
+          Active → Observed → Validated → Hardened。从会话中自动提取模式并逐级验证提升
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-emoji">🩹</div>
+        <div class="feature-text">
+          <strong>Self-Correction</strong><br>
+          Karpathy 循环：Measure → Change → Verify → Keep/Discard。影子测试确保安全
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-emoji">📊</div>
+        <div class="feature-text">
+          <strong>7-Level Enforcement</strong><br>
+          CLAUDE.md → Memory → Skill → Rule → Hook Warning → Hook Block → Session Abort
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-emoji">💾</div>
+        <div class="feature-text">
+          <strong>Soul & Shadow 持久化</strong><br>
+          Soul.json 验证真理 · Shadow.json 失败教训（权重 9 > 成功 7，借鉴 MUNDO）
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-emoji">🤝</div>
+        <div class="feature-text">
+          <strong>ECC + MUNDO + Metacog + Claude Soul</strong><br>
+          融合四大系统精华：67 agents · 92 skills · 85 rules · 34 hooks
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 🛠️ Tools ====== -->
+  <div class="cat-section">
+    <div class="cat-label">🛠️ 工具</div>
+    <div class="nav-grid">
+
+      <!-- PHOENIX -->
+      <a class="card card-phoenix" href="docs/CLAUDE.md">
+        <div class="card-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)">🐦‍🔥</div>
+        <div class="card-body">
+          <div class="card-title">PHOENIX v1.0.0 — 自主进化型 Agent</div>
+          <div class="card-desc">七感监测 · 四阶段进化 · Karpathy 自愈 · 67 agents · 92 skills · ECC+MUNDO 融合</div>
+        </div>
+        <span class="card-badge">→</span>
+      </a>
+
+      <!-- MUNDO -->
+      <a class="card card-tool" href="https://github.com/LiHongwei-cn/lihongwei-cn" target="_blank" rel="noopener">
+        <div class="card-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)">👑</div>
+        <div class="card-body">
+          <div class="card-title">MUNDO Agent v1.2.0 — 独立 AI Agent</div>
+          <div class="card-desc">LLM 直连 · 28 模型 · 10 工具 · Agentic Loop · Agent 调度 · 分身并行 · Claude Code+Hermes+Codex</div>
+        </div>
+        <span class="card-badge" title="LiHongwei">↗</span>
+      </a>
+
+      <!-- Claude Code Desktop -->
+      <a class="card" href="https://github.com/LiHongwei-cn/lihongwei-cn/tree/main/desktop-launcher" target="_blank" rel="noopener">
+        <div class="card-icon" style="background:linear-gradient(135deg,#d97460,#c2604a)">🖥️</div>
+        <div class="card-body">
+          <div class="card-title">Claude Code 桌面启动</div>
+          <div class="card-desc">Win / Mac 一键创建桌面快捷方式</div>
+        </div>
+        <span class="card-badge">↗</span>
+      </a>
+
+      <!-- Hermes Launcher -->
+      <a class="card" href="https://github.com/LiHongwei-cn/lihongwei-cn/tree/main/hermes-launcher" target="_blank" rel="noopener">
+        <div class="card-icon" style="background:linear-gradient(135deg,#0d9488,#0f766e)">🚀</div>
+        <div class="card-body">
+          <div class="card-title">Hermes Agent 一键启动</div>
+          <div class="card-desc">Nous Research 开源 AI · 双击即用</div>
+        </div>
+        <span class="card-badge">↗</span>
+      </a>
+
+      <!-- Global Specs -->
+      <a class="card" href="https://github.com/LiHongwei-cn/lihongwei-cn/tree/main/global-specs" target="_blank" rel="noopener">
+        <div class="card-icon" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)">📦</div>
+        <div class="card-body">
+          <div class="card-title">全局规范部署包</div>
+          <div class="card-desc">Claude Code 全套配置 · 新电脑一条命令部署 · 1208 skills · 25 模块</div>
+        </div>
+        <span class="card-badge">↗</span>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- ====== 📚 Guides ====== -->
+  <div class="cat-section">
+    <div class="cat-label">📚 指南</div>
+    <div class="nav-grid">
+
+      <a class="card" href="https://github.com/LiHongwei-cn/lihongwei-cn/tree/main/claude-code-tutorial" target="_blank" rel="noopener">
+        <div class="card-icon" style="background:linear-gradient(135deg,#6d28d9,#5b21b6)">📖</div>
+        <div class="card-body">
+          <div class="card-title">Claude Code 完整指南</div>
+          <div class="card-desc">安装 · 国产模型 · 全局规范 · Skill · 踩坑全记录</div>
+        </div>
+        <span class="card-badge">↗</span>
+      </a>
+
+      <a class="card" href="https://github.com/LiHongwei-cn/lihongwei-cn/tree/main/hermes-guide" target="_blank" rel="noopener">
+        <div class="card-icon" style="background:linear-gradient(135deg,#0d9488,#0f766e)">📘</div>
+        <div class="card-body">
+          <div class="card-title">Hermes Agent 完整指南</div>
+          <div class="card-desc">安装 · DeepSeek · Telegram · 全部踩坑解决</div>
+        </div>
+        <span class="card-badge">↗</span>
+      </a>
+
+      <a class="card" href="https://github.com/LiHongwei-cn/lihongwei-cn/tree/main/vpn-guide" target="_blank" rel="noopener">
+        <div class="card-icon" style="background:linear-gradient(135deg,#b91c1c,#991b1b)">🔒</div>
+        <div class="card-body">
+          <div class="card-title">免费 VPN 自建指南</div>
+          <div class="card-desc">Cloudflare 零成本 · 全平台客户端</div>
+        </div>
+        <span class="card-badge">↗</span>
+      </a>
+
+      <a class="card" href="https://github.com/LiHongwei-cn/lihongwei-cn/tree/main/win-optimize" target="_blank" rel="noopener">
+        <div class="card-icon" style="background:linear-gradient(135deg,#0e7490,#155e75)">🖥️</div>
+        <div class="card-body">
+          <div class="card-title">Win / Mac 系统优化</div>
+          <div class="card-desc">一行命令瘦身 · 隐私保护 · 开机加速</div>
+        </div>
+        <span class="card-badge">↗</span>
+      </a>
+
+      <!-- PHOENIX Guide -->
+      <a class="card card-phoenix" href="README.md">
+        <div class="card-icon" style="background:linear-gradient(135deg,#ea580c,#c2410c)">🔥</div>
+        <div class="card-body">
+          <div class="card-title">PHOENIX 完整指南</div>
+          <div class="card-desc">自进化架构 · 部署教程 · 命令参考 · 融合来源</div>
+        </div>
+        <span class="card-badge">→</span>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- ====== PHOENIX Core Components ====== -->
+  <div class="cat-section">
+    <div class="cat-label">⚙️ PHOENIX 核心组件</div>
+    <div class="nav-grid">
+
+      <a class="card card-phoenix" href="docs/CLAUDE.md">
+        <div class="card-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)">📜</div>
+        <div class="card-body">
+          <div class="card-title">PHOENIX Constitution — CLAUDE.md</div>
+          <div class="card-desc">执行层级 · 七感监测 · 自进化承诺 · 情感智慧 · 安全基线 · 品质清单</div>
+        </div>
+        <span class="card-badge">→</span>
+      </a>
+
+      <a class="card" href="docs/soul.json">
+        <div class="card-icon" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)">💛</div>
+        <div class="card-body">
+          <div class="card-title">Soul.json — 核心身份</div>
+          <div class="card-desc">5 条已验证真理 · 10 条核心价值观 · 进化度量追踪</div>
+        </div>
+        <span class="card-badge">→</span>
+      </a>
+
+      <a class="card" href="docs/shadow.json">
+        <div class="card-icon" style="background:linear-gradient(135deg,#991b1b,#7f1d1d)">🖤</div>
+        <div class="card-body">
+          <div class="card-title">Shadow.json — 失败教训</div>
+          <div class="card-desc">7 条反模式 · 严重级别分类 · 检测与预防规则</div>
+        </div>
+        <span class="card-badge">→</span>
+      </a>
+
+      <a class="card" href="scripts/monitor.py">
+        <div class="card-icon" style="background:linear-gradient(135deg,#0e7490,#0369a1)">👁️</div>
+        <div class="card-body">
+          <div class="card-title">monitor.py — 七感监测</div>
+          <div class="card-desc">O2 · Chronos · Nociception · Spatial · Vestibular · Echo · Drift</div>
+        </div>
+        <span class="card-badge">→</span>
+      </a>
+
+      <a class="card" href="scripts/evolve.py">
+        <div class="card-icon" style="background:linear-gradient(135deg,#d97706,#b45309)">🔄</div>
+        <div class="card-body">
+          <div class="card-title">evolve.py — 进化引擎</div>
+          <div class="card-desc">框架生命周期 · 自动提升/降级 · 规则自生成 · Soul 同步</div>
+        </div>
+        <span class="card-badge">→</span>
+      </a>
+
+      <a class="card" href="scripts/correct.py">
+        <div class="card-icon" style="background:linear-gradient(135deg,#dc2626,#b91c1c)">🩹</div>
+        <div class="card-body">
+          <div class="card-title">correct.py — 自愈引擎</div>
+          <div class="card-desc">衰退检测 · 修正提案 · 影子测试 · Karpathy Keep/Discard</div>
+        </div>
+        <span class="card-badge">→</span>
+      </a>
+
+      <a class="card" href="scripts/analyze.py">
+        <div class="card-icon" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)">🔬</div>
+        <div class="card-body">
+          <div class="card-title">analyze.py — 模式挖掘</div>
+          <div class="card-desc">工具序列 · 错误模式 · 成功提取 · 反模式检测</div>
+        </div>
+        <span class="card-badge">→</span>
+      </a>
+
+      <a class="card" href="docs/SKILL.md">
+        <div class="card-icon" style="background:linear-gradient(135deg,#ea580c,#c2410c)">🎯</div>
+        <div class="card-body">
+          <div class="card-title">PHOENIX SKILL.md — 主编排器</div>
+          <div class="card-desc">自动触发 · 数据流 · 集成点 · 命令参考</div>
+        </div>
+        <span class="card-badge">→</span>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- ====== Fusion Ecosystem ====== -->
+  <div class="cat-section">
+    <div class="cat-label">🌍 融合生态</div>
+    <div class="nav-grid">
+
+      <a class="card" href="https://github.com/affaan-m/everything-claude-code" target="_blank" rel="noopener">
+        <div class="card-icon" style="background:linear-gradient(135deg,#6d28d9,#5b21b6)">📦</div>
+        <div class="card-body">
+          <div class="card-title">ECC — Everything Claude Code (207k ⭐)</div>
+          <div class="card-desc">67 agents · 92 skills · 85 rules · 34 hooks · AgentShield 安全扫描 · 1282 tests</div>
+        </div>
+        <span class="card-badge">↗</span>
+      </a>
+
+      <a class="card card-tool" href="https://github.com/LiHongwei-cn/lihongwei-cn" target="_blank" rel="noopener">
+        <div class="card-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)">👑</div>
+        <div class="card-body">
+          <div class="card-title">MUNDO Agent v1.2.0 — LiHongwei</div>
+          <div class="card-desc">28 模型 · 10 工具 · Agentic Loop · 六层记忆 · 多 Agent 调度 · 情感智慧</div>
+        </div>
+        <span class="card-badge">↗</span>
+      </a>
+
+      <a class="card" href="https://github.com/houtini-ai/metacog" target="_blank" rel="noopener">
+        <div class="card-icon" style="background:linear-gradient(135deg,#0891b2,#0e7490)">🧿</div>
+        <div class="card-body">
+          <div class="card-title">Metacog — 七感元认知</div>
+          <div class="card-desc">本体感知 · 痛觉升级 · 运动学习 · 倒置时间衰减 · 会话回顾</div>
+        </div>
+        <span class="card-badge">↗</span>
+      </a>
+
+      <a class="card" href="https://github.com/DomDemetz/claude-soul" target="_blank" rel="noopener">
+        <div class="card-icon" style="background:linear-gradient(135deg,#a855f7,#9333ea)">✨</div>
+        <div class="card-body">
+          <div class="card-title">Claude Soul — 身份演进</div>
+          <div class="card-desc">框架生命周期 · SOUL/SHADOW/STORY · 三层反思 · 行为框架</div>
+        </div>
+        <span class="card-badge">↗</span>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- ====== Footer ====== -->
+  <div class="footer">
+    <div class="footer-row">
+      <span>🐦‍🔥 PHOENIX v1.0.0</span>
+      <span class="footer-dot"></span>
+      <span>ECC + MUNDO + Metacog + Claude Soul</span>
+      <span class="footer-dot"></span>
+      <a href="https://github.com/HolyTy/phoenix-site">GitHub ↗</a>
+    </div>
+    <div style="margin-top:8px;color:var(--faint);font-size:11px">
+      "从灰烬中升起，每一次观察都是新生的燃料" 🐦‍🔥
+    </div>
+    <div style="margin-top:4px;font-size:10px;color:rgba(255,255,255,0.1)">
+      Built with PHOENIX Self-Evolving Agent Harness · MIT License
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
