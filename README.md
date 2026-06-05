@@ -1,4 +1,4 @@
-# 🐦‍🔥 PHOENIX — Self-Evolving Agent Harness v1.0.0
+# 🐦‍🔥 PHOENIX — Self-Evolving Agent Harness v1.1.0
 
 > *"每一段进化，都是从一次观察开始的"*
 > — PHOENIX, born from the fusion of ECC + MUNDO + Metacog + Claude Soul

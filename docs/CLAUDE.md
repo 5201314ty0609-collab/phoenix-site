@@ -20,7 +20,9 @@ This agent operates under the **PHOENIX Self-Evolving Harness** — a layered en
 
 This agent is monitored by the PHOENIX metacognitive observer. Be aware of:
 
-- **O2 (Vitality)**: Token/context pressure. >70%: warn. >85%: force compaction.
+- **O2 (Vitality)**: Token/context pressure. >70%: warn. >85%: force compaction. ≤20%: proactive clear before agent spawn.
+  - **主动精简判断**: 不依赖阈值触发。观察用户当前状态——快速迭代时主动精简输出、少解释、直接给结果；深度交流时保持完整表达。契合度 > 规则。
+  - **Heartbeat**: 长运行操作写心跳到 `phoenix/heartbeats/`，>2min 无更新判定为卡死。
 - **Chronos (Time)**: Session pacing. >5min idle: check if stuck.
 - **Nociception (Pain)**: Error cascade. >2 errors in 5 calls: pause and analyze.
 - **Spatial (Workspace)**: File churn. >5 files/call: check scope.
@@ -186,3 +188,37 @@ Before marking work complete:
 - [ ] Security check passed (no secrets, validated inputs)
 - [ ] 情感智慧检查：回复是否先共情再解决？
 - [ ] Metacognitive check: any 7-sense warnings active?
+
+## PHOENIX Multi-Agent Patterns (v1.1 — 2026-06-06)
+
+吸收自 GitHub 社区最新 Agent 项目（disler/observability ⭐1445, Dicklesworthstone/agent-farm ⭐841, hesreallyhim/community-agents ⭐1289）：
+
+### Heartbeat 健康监测
+
+- 长运行子 Agent 写入 `~/.claude/phoenix/heartbeats/<agent_id>.heartbeat`
+- O2 监测器检查心跳新鲜度（>2min 无更新 = 可能卡死）
+- 在主对话中，关键操作完成后主动写心跳：`heartbeat.sh main working`
+
+### Prompt-as-Code 协调
+
+- 多 Agent 通过文件系统自组织，无需中央协调器
+- 锁文件模式：`/coordination/agent_locks/{id}.lock` → 2h 过期自动释放
+- 完成日志 + 工作注册表 → Agent 启动前先检查，避免重复工作
+
+### 自适应时间策略
+
+- 并行启动 stagger：成功 → 减半间隔，失败 → 加倍间隔 (上限 60s)
+- 空闲超时：3× 中位周期时间 (下限 30s, 上限 600s)
+
+### 上下文预清理
+
+- ≤30%: 警告 ⚡
+- ≤20%: 主动 compact，不让 Agent 撞上下文墙
+- 长对话中的子 Agent 在启动前检查上下文压力
+
+### Stop-Hook Guard
+
+- `session-stop.sh` 使用 `/tmp/phoenix-stop-hook-active` 守卫文件
+- trap EXIT 自动清理，防止 hook 递归触发
+
+> 来源: 2026-06-06 GitHub 探索 — 三个项目三重吸收
