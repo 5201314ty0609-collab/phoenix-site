@@ -1,5 +1,24 @@
 # PHOENIX Changelog
 
+## v1.2.0 — The Aesthetic Awakening (2026-06-08)
+
+### New Features
+- **8th Sense: Aesthetic** — Design taste judgment, 3-dial parameters (VARIANCE/MOTION/DENSITY), Anti-Slop enforcement
+- **Knowledge Network** — 64 nodes, 103 edges, TF-IDF semantic search, BFS traversal, auto-extraction
+- **Hermes Agent v0.16.0** — Independent runtime, 72+ skills, MCP bridge with Claude Code
+- **PHOENIX Identity System** — Catppuccin Mocha palette, Outfit+Inter+JetBrains Mono, 4px grid, dual theme
+- **Eight Senses Visualization** — Real-time p5js panel, interactive dials, taste-driven design
+- **Birth Narrative + ASCII Art** — Origin poem + phoenix ASCII cover
+
+### System Upgrades
+- **Self-Heal Engine v2** — 3-level escalation (observe→warn→act) from Metacog v0.5.2, inverted time-decay
+- **Session State Decay** — Cross-session concern tracking from Claude Soul v0.2.4
+- **Taste-Skill Integration** — 17 taste skills, Anti-Slop rules merged into design-quality.md
+- **Memory Bridge** — Bidirectional PHOENIX ↔ Hermes sync
+- `/phoenix-knowledge` slash command
+
+---
+
 ## v1.1.0 — 2026-06-06
 
 ### 神经系统接通

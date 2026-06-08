@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHOENIX · Eight Senses</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:100%;height:100%;overflow:hidden;background:#11111B;font-family:'Inter',system-ui,sans-serif}
+  canvas{display:block}
+  #overlay{position:fixed;top:0;left:0;pointer-events:none;z-index:10}
+  #dials{position:fixed;right:24px;top:50%;transform:translateY(-50%);z-index:5;
+    display:flex;flex-direction:column;gap:20px;pointer-events:all}
+  .dial-group{display:flex;flex-direction:column;gap:4px}
+  .dial-label{font-family:'Outfit',sans-serif;font-size:10px;font-weight:600;color:#BAC2DE;letter-spacing:0.06em;text-transform:uppercase}
+  .dial-value{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:#CDD6F4}
+  .dial-slider{-webkit-appearance:none;width:120px;height:2px;background:#313244;border-radius:1px;outline:none}
+  .dial-slider::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#B4BEFE;cursor:pointer;border:2px solid #11111B;transition:transform .15s ease}
+  .dial-slider::-webkit-slider-thumb:hover{transform:scale(1.3)}
+  #legend{position:fixed;left:24px;bottom:32px;z-index:5;display:flex;flex-direction:column;gap:6px}
+  .legend-row{display:flex;align-items:center;gap:8px;font-size:11px;color:#BAC2DE}
+  .legend-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  #title-area{position:fixed;left:24px;top:24px;z-index:5}
+  #title-area h1{font-family:'Outfit',sans-serif;font-size:28px;font-weight:700;color:#CDD6F4;line-height:1.1;letter-spacing:-0.02em}
+  #title-area p{font-family:'Inter',sans-serif;font-size:12px;color:#9399B2;margin-top:4px;letter-spacing:0.01em}
+  #title-area .dial-indicator{display:flex;gap:16px;margin-top:10px}
+  .dial-badge{font-family:'JetBrains Mono',monospace;font-size:9px;color:#585B70;padding:2px 8px;border:1px solid #313244;border-radius:4px}
+  .dial-badge span{color:#B4BEFE}
+  #grain{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:2;opacity:0.04;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+</style>
+</head>
+<body>
+<div id="grain"></div>
+<div id="title-area">
+  <h1>PHOENIX<br>Eight Senses</h1>
+  <p>八感元认知 · 实时可视化</p>
+  <div class="dial-indicator">
+    <div class="dial-badge">VAR <span id="dv">7</span></div>
+    <div class="dial-badge">MOT <span id="mi">6</span></div>
+    <div class="dial-badge">DEN <span id="vd">5</span></div>
+  </div>
+</div>
+<div id="dials">
+  <div class="dial-group">
+    <div class="dial-label">Design Variance</div>
+    <div class="dial-value" id="dial-var-val">7</div>
+    <input type="range" class="dial-slider" id="dial-var" min="1" max="10" value="7" style="--accent:#B4BEFE">
+  </div>
+  <div class="dial-group">
+    <div class="dial-label">Motion Intensity</div>
+    <div class="dial-value" id="dial-mot-val">6</div>
+    <input type="range" class="dial-slider" id="dial-mot" min="1" max="10" value="6" style="--accent:#A6E3A1">
+  </div>
+  <div class="dial-group">
+    <div class="dial-label">Visual Density</div>
+    <div class="dial-value" id="dial-den-val">5</div>
+    <input type="range" class="dial-slider" id="dial-den" min="1" max="10" value="5" style="--accent:#F9E2AF">
+  </div>
+</div>
+<div id="legend">
+  <div class="legend-row"><div class="legend-dot" style="background:#A6E3A1"></div>O₂ 生命力</div>
+  <div class="legend-row"><div class="legend-dot" style="background:#F9E2AF"></div>Chronos 时间感</div>
+  <div class="legend-row"><div class="legend-dot" style="background:#F38BA8"></div>Nociception 痛觉</div>
+  <div class="legend-row"><div class="legend-dot" style="background:#89DCEB"></div>Spatial 空间感</div>
+  <div class="legend-row"><div class="legend-dot" style="background:#B4BEFE"></div>Vestibular 平衡感</div>
+  <div class="legend-row"><div class="legend-dot" style="background:#94E2D5"></div>Echo 回响</div>
+  <div class="legend-row"><div class="legend-dot" style="background:#CBA6F7"></div>Drift 焦点</div>
+  <div class="legend-row"><div class="legend-dot" style="background:#F5C2E7"></div>Aesthetic 审美 🆕</div>
+</div>
+<script>
+// ══════════════════════════════════════════════════════════════════
+//  PHOENIX Eight Senses · Design Dial-driven Visualization
+//  Palette: Catppuccin Mocha · Fonts: Outfit + Inter + JetBrains Mono
+//  Dial Settings: VAR=7 MOT=6 DEN=5
+// ══════════════════════════════════════════════════════════════════
+
+const C = {
+  base:'#11111B',mantle:'#181825',crust:'#1E1E2E',surface0:'#313244',
+  surface1:'#45475A',surface2:'#585B70',overlay0:'#6C7086',overlay1:'#7F849C',
+  overlay2:'#9399B2',subtext0:'#A6ADC8',subtext1:'#BAC2DE',text:'#CDD6F4',
+  lavender:'#B4BEFE',blue:'#89B4FA',sapphire:'#74C7EC',sky:'#89DCEB',
+  teal:'#94E2D5',green:'#A6E3A1',yellow:'#F9E2AF',peach:'#FAB387',
+  maroon:'#EBA0AC',red:'#F38BA8',mauve:'#CBA6F7',pink:'#F5C2E7',flamingo:'#F2CDCD',
+};
+
+// ── 8 Senses ──────────────────────────────────────────────────────
+const SENSES = [
+  {id:'o2',color:C.green,label:'O₂',name:'生命力',desc:'上下文压力→呼吸',icon:'◉'},
+  {id:'chronos',color:C.yellow,label:'Chr',name:'时间感',desc:'会话节奏→时针',icon:'◷'},
+  {id:'nociception',color:C.red,label:'Noc',name:'痛觉',desc:'错误级联→脉冲',icon:'⚡'},
+  {id:'spatial',color:C.sky,label:'Spa',name:'空间感',desc:'文件变更→网格',icon:'⊞'},
+  {id:'vestibular',color:C.lavender,label:'Ves',name:'平衡感',desc:'工具多样→雷达',icon:'⬡'},
+  {id:'echo',color:C.teal,label:'Ech',name:'回响',desc:'模式复现→涟漪',icon:'∿'},
+  {id:'drift',color:C.mauve,label:'Dri',name:'焦点',desc:'话题锚定→核心',icon:'✦'},
+  {id:'aesthetic',color:C.pink,label:'Aes',name:'审美',desc:'设计判断→品味',icon:'◈'},
+];
+
+// ── State ──────────────────────────────────────────────────────────
+let cx,cy,orbitR,bubbleR;
+let nociceptionDots=[],echoRipples=[],bgParticles=[];
+let hovered=null,focused=null,focusTimer=0;
+let dials={variance:7,motion:6,density:5};
+
+// ── Setup ──────────────────────────────────────────────────────────
+function setup(){
+  createCanvas(windowWidth,windowHeight);
+  pixelDensity(min(window.devicePixelRatio||1,2));
+  recompute();textAlign(CENTER,CENTER);ellipseMode(CENTER);rectMode(CENTER);
+  for(let i=0;i<160;i++)bgParticles.push({x:random(width),y:random(height),
+    r:random(0.4,1.6),tw:random(TWO_PI),sp:random(0.2,1.2),al:random(12,60)});
+  // Bind dials
+  ['var','mot','den'].forEach((k,i)=>{
+    const id=k==='var'?'dial-var':k==='mot'?'dial-mot':'dial-den';
+    const el=document.getElementById(id);
+    if(el)el.oninput=()=>{
+      dials[k==='var'?'variance':k==='mot'?'motion':'density']=parseInt(el.value);
+      document.getElementById(id+'-val').textContent=el.value;
+      document.getElementById({variance:'dv',motion:'mi',density:'vd'}[k==='var'?'variance':k==='mot'?'motion':'density']).textContent=el.value;
+    };
+  });
+}
+function windowResized(){resizeCanvas(windowWidth,windowHeight);recompute();bgParticles=[];for(let i=0;i<160;i++)bgParticles.push({x:random(width),y:random(height),r:random(0.4,1.6),tw:random(TWO_PI),sp:random(0.2,1.2),al:random(12,60)});}
+function recompute(){
+  cx=width*0.50;
+  cy=height*0.46;
+  const m=min(width,height);
+  orbitR=m*0.29;bubbleR=m*0.095;
+}
+
+// ── Mouse ──────────────────────────────────────────────────────────
+function mouseMoved(){
+  hovered=null;
+  for(const s of SENSES){
+    const pos=getPos(s);
+    if(dist(mouseX,mouseY,pos.x,pos.y)<bubbleR*1.3){
+      hovered=s;break;
+    }
+  }
+  // Also check center
+  if(!hovered&&dist(mouseX,mouseY,cx,cy)<bubbleR*1.4){
+    hovered={id:'core',color:C.mauve,name:'Core',desc:'PHOENIX 自进化核心',icon:'🔥'};
+  }
+}
+function mousePressed(){
+  if(hovered){focused=hovered;focusTimer=millis();return false;}
+  if(focused){focused=null;return false;}
+}
+
+// ── Get Position ───────────────────────────────────────────────────
+function getPos(s){
+  const idx=SENSES.findIndex(ss=>ss.id===s.id);
+  const angle=-PI/2+idx*(TWO_PI/8);
+  const varOffset=dials.variance>6?(dials.variance-6)*0.03*sin(angle*4):0;
+  const r=orbitR*(1+varOffset);
+  return{x:cx+cos(angle)*r,y:cy+sin(angle)*r};
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  DRAW
+// ══════════════════════════════════════════════════════════════════
+function draw(){
+  const t=millis()/1000;
+  drawBg(t);
+  drawOrbits(t);
+  drawConnections(t);
+  for(const s of SENSES)drawSense(s,t);
+  drawCenter(t);
+  if(focused&&millis()-focusTimer>400)drawFocus(t);
+}
+
+// ── Background ─────────────────────────────────────────────────────
+function drawBg(t){
+  for(let y=0;y<height;y++){
+    const inter=map(y,0,height,0,1);
+    stroke(lerpColor(color(C.base),color(C.mantle),inter*0.5));
+    line(0,y,width,y);
+  }
+  noStroke();
+  for(const p of bgParticles){
+    const tw=p.al*0.35*(0.4+0.6*sin(t*p.sp+p.tw));
+    fill(cola(C.subtext0,tw));
+    circle(p.x,p.y,p.r);
+  }
+}
+
+// ── Orbits ─────────────────────────────────────────────────────────
+function drawOrbits(t){
+  push();noFill();
+  const oa=10+6*sin(t*0.15);
+  // Main orbit ring
+  stroke(cola(C.surface0,oa));
+  strokeWeight(0.5);
+  drawingContext.setLineDash([4,20]);
+  circle(cx,cy,orbitR*2);
+  drawingContext.setLineDash([]);
+  // Outer faint ring
+  stroke(cola(C.surface0,oa*0.5));
+  strokeWeight(0.3);
+  drawingContext.setLineDash([2,30]);
+  circle(cx,cy,orbitR*2.35);
+  drawingContext.setLineDash([]);
+  pop();
+}
+
+// ── Connections ────────────────────────────────────────────────────
+function drawConnections(t){
+  for(let i=0;i<8;i++){
+    const s=SENSES[i];
+    const p=getPos(s);
+    const isH=hovered&&(hovered.id===s.id||hovered.id==='core');
+    const alpha=isH?40:12+5*sin(t*0.4+i);
+    push();
+    stroke(cola(s.color,alpha));strokeWeight(isH?1.2:0.5);
+    line(cx,cy,p.x,p.y);
+    // Particle traveling
+    const pp=0.45+0.45*sin(t*0.6+i*0.8);
+    const px=lerp(cx,p.x,pp),py=lerp(cy,p.y,pp);
+    noStroke();fill(cola(s.color,alpha*2.5));
+    circle(px,py,isH?3:1.5);
+    pop();
+  }
+}
+
+
+// ── Draw Single Sense ──────────────────────────────────────────────
+function drawSense(s,t){
+  const p=getPos(s);
+  const r=bubbleR;
+  const isH=hovered&&hovered.id===s.id;
+
+  push();
+  // Halo glow
+  noStroke();
+  for(let i=3;i>=0;i--){
+    const sz=map(i,0,3,r*1.1,r*(isH?2.6:1.9));
+    const al=map(i,0,3,isH?18:5,0);
+    fill(cola(s.color,al*(0.6+0.4*sin(t*0.5+i))));
+    circle(p.x,p.y,sz*2);
+  }
+
+  // Sense-specific rendering
+  switch(s.id){
+    case'o2':renderO2(p.x,p.y,r,t,s.color,isH);break;
+    case'chronos':renderChronos(p.x,p.y,r,t,s.color,isH);break;
+    case'nociception':renderNoci(p.x,p.y,r,t,s.color,isH);break;
+    case'spatial':renderSpatial(p.x,p.y,r,t,s.color,isH);break;
+    case'vestibular':renderVest(p.x,p.y,r,t,s.color,isH);break;
+    case'echo':renderEcho(p.x,p.y,r,t,s.color,isH);break;
+    case'drift':renderDriftBubble(p.x,p.y,r,t,s.color,isH);break;
+    case'aesthetic':renderAestheticBubble(p.x,p.y,r,t,s.color,isH);break;
+  }
+
+  // Label
+  textFont('Inter');
+  fill(cola(s.color,isH?255:200));
+  textSize(isH?13:11);textStyle(BOLD);text(s.name,p.x,p.y+r*1.25);
+  // Description
+  fill(cola(s.color,isH?200:150));
+  textSize(10);textStyle(NORMAL);text(s.desc,p.x,p.y+r*1.25+16);
+  // Value
+  textFont('JetBrains Mono');
+  const val=30+55*(0.5+0.5*sin(t*0.25+SENSES.indexOf(s)));
+  fill(cola(s.color,isH?220:160));textSize(11);
+  text(Math.round(val)+'%',p.x,p.y+r*1.25+30);
+  pop();
+}
+
+// ── O2: Breathing rings ───────────────────────────────────────────
+function renderO2(x,y,r,t,col,isH){
+  push();noFill();
+  const press=0.35+0.25*sin(t*0.15)+0.1*sin(t*0.31);
+  for(let i=0;i<5;i++){
+    const ph=i*PI/5;const sp=0.6+i*0.08;
+    const pulse=0.55+0.25*sin(t*sp+ph);
+    const rad=r*pulse*(0.7+0.3*press);
+    stroke(cola(col,map(i,0,5,150,25)));strokeWeight(map(i,0,5,2.2,0.4));
+    circle(x,y,rad*2);
+  }
+  noStroke();fill(cola(col,20+30*press));circle(x,y,r*0.6*press);
+  stroke(cola(col,100));strokeWeight(1);noFill();
+  arc(x,y,r*1.5,r*1.5,-PI/2,-PI/2+press*TWO_PI);
+  pop();
+}
+
+// ── Chronos: Multi-hand clock ──────────────────────────────────────
+function renderChronos(x,y,r,t,col,isH){
+  push();const rr=r*0.82;
+  noFill();stroke(cola(col,50));strokeWeight(0.8);circle(x,y,rr*2);
+  for(let i=0;i<60;i++){
+    const a=(i/60)*TWO_PI-PI/2;const isM=i%5===0;
+    const ln=isM?6:2;const inn=rr-2;
+    stroke(cola(col,isM?90:30));strokeWeight(isM?1:0.4);
+    line(x+cos(a)*inn,y+sin(a)*inn,x+cos(a)*(inn-ln),y+sin(a)*(inn-ln));
+  }
+  const fa=t*1.8;stroke(cola(col,170));strokeWeight(1.8);
+  line(x,y,x+cos(fa)*rr*0.85,y+sin(fa)*rr*0.85);
+  const sa=t*0.12;stroke(cola(col,200));strokeWeight(2.2);
+  line(x,y,x+cos(sa)*rr*0.48,y+sin(sa)*rr*0.48);
+  noStroke();fill(col);circle(x,y,3.5);
+  pop();
+}
+
+// ── Nociception: Red alert dots ───────────────────────────────────
+function renderNoci(x,y,r,t,col,isH){
+  push();const nv=noise(t*0.3,1.5);
+  if(nv>0.65){const bs=nv>0.8?4:1;for(let i=0;i<bs;i++)nociceptionDots.push(cd(x,y,r,t));}
+  else if(random()<0.06)nociceptionDots.push(cd(x,y,r,t));
+  const al=[];for(const d of nociceptionDots){
+    const age=t-d.birth;if(age>d.life)continue;
+    const prog=age/d.life,rad=d.mr*(1-prog*0.5),alpha=(1-prog)*210;
+    noStroke();fill(cola(col,alpha));circle(d.x,d.y,rad*2);
+    fill(cola(col,alpha*0.2));circle(d.x,d.y,rad*5);al.push(d);
+  }nociceptionDots=al.slice(-90);
+  if(nociceptionDots.length>5){fill(cola(col,140+60*sin(t*2)));textFont('JetBrains Mono');textSize(11);textStyle(BOLD);text(nociceptionDots.length,x+r*0.5,y-r*0.5);}
+  pop();
+}
+function cd(x,y,r,t){const a=random(TWO_PI);return{x:x+cos(a)*random(r*0.15,r*0.88),y:y+sin(a)*random(r*0.15,r*0.88),birth:t,life:random(0.5,2),mr:random(1.5,4.5)};}
+
+// ── Spatial: Morphing grid ────────────────────────────────────────
+function renderSpatial(x,y,r,t,col,isH){
+  push();const st=isH?14:17;const cs=floor(r*2/st);const rs=floor(r*2/st);
+  const sx=x-r,sy=y-r;const step=(r*2)/max(cs,rs);
+  for(let i=0;i<=cs;i++){for(let j=0;j<=rs;j++){
+    const gx=sx+i*step,gy=sy+j*step;const d=dist(gx,gy,x,y);if(d>r*0.9)continue;
+    const wx=sin(t*0.6+i*0.4+j*0.35)*step*0.22,wy=cos(t*0.5+i*0.35+j*0.4)*step*0.22;
+    const cw=step+wx,ch=step+wy;
+    const al=map(d,0,r,75,12)*(0.7+0.3*sin(t*0.4+i*0.5+j*0.3));
+    noFill();stroke(cola(col,al));strokeWeight(0.35+0.25*sin(t*0.7+i+j));
+    const rot=sin(t*0.3+i*0.2+j*0.2)*0.06;
+    push();translate(gx+cw/2,gy+ch/2);rotate(rot);rect(0,0,cw,ch);pop();
+  }}
+  fill(cola(col,isH?180:80));noStroke();textFont('JetBrains Mono');textSize(9);
+  text(floor(cs*rs*(0.5+0.3*sin(t*0.2)))+' files',x,y+r*0.15);
+  pop();
+}
+
+// ── Vestibular: Hex radar ──────────────────────────────────────────
+function renderVest(x,y,r,t,col,isH){
+  push();const tools=['term','file','web','srch','vis','code'];
+  const vals=tools.map((_,i)=>0.3+0.7*(0.5+0.5*sin(t*0.25+i*1.7)));
+  const mr=r*0.74;
+  for(let ri=1;ri<=4;ri++){const sc=ri/4;stroke(cola(col,map(ri,1,4,28,6)));strokeWeight(0.3);noFill();beginShape();
+    for(let i=0;i<6;i++){const a=(i/6)*TWO_PI-PI/2;const osc=0.88+0.12*sin(t*0.4+i*1.2+ri*0.7);vertex(x+cos(a)*mr*sc*osc,y+sin(a)*mr*sc*osc);}endShape(CLOSE);}
+  fill(cola(col,25));beginShape();for(let i=0;i<6;i++){const a=(i/6)*TWO_PI-PI/2;vertex(x+cos(a)*mr*vals[i],y+sin(a)*mr*vals[i]);}endShape(CLOSE);
+  stroke(cola(col,isH?180:100));strokeWeight(isH?1.6:1);noFill();beginShape();for(let i=0;i<6;i++){const a=(i/6)*TWO_PI-PI/2;vertex(x+cos(a)*mr*vals[i],y+sin(a)*mr*vals[i]);}endShape(CLOSE);
+  for(let i=0;i<6;i++){const a=(i/6)*TWO_PI-PI/2,val=vals[i];noStroke();fill(cola(col,180));circle(x+cos(a)*mr*val,y+sin(a)*mr*val,isH?4:3);}
+  pop();
+}
+
+// ── Echo: Ripples ──────────────────────────────────────────────────
+function renderEcho(x,y,r,t,col,isH){
+  push();const nv=noise(t*0.4,3.7);
+  if(nv>0.7&&random()<0.3){for(let i=0;i<3;i++)echoRipples.push(cr(x,y,r,t));}
+  else if(random()<(nv>0.55?0.08:0.02))echoRipples.push(cr(x,y,r,t));
+  const al=[];for(const rip of echoRipples){
+    const age=t-rip.birth;if(age>rip.life)continue;
+    const prog=age/rip.life,rad=rip.sr+prog*(rip.er-rip.sr);
+    const alpha=(1-prog)*160;
+    noFill();stroke(cola(col,alpha));strokeWeight(1+2*(1-prog));circle(rip.cx,rip.cy,rad*2);
+    stroke(cola(col,alpha*0.25));strokeWeight(0.6);circle(rip.cx,rip.cy,rad*2.5);al.push(rip);
+  }echoRipples=al.slice(-70);
+  if(echoRipples.length>5&&isH){fill(cola(col,160));noStroke();textFont('JetBrains Mono');textSize(10);textStyle(BOLD);text(echoRipples.length+' reps',x,y+r*0.3);}
+  pop();
+}
+function cr(x,y,r,t){const a=random(TWO_PI),d=random(-r*0.35,r*0.35);return{cx:x+cos(a)*d,cy:y+sin(a)*d,birth:t,life:random(1.3,3.5),sr:1,er:random(r*0.35,r*0.8)};}
+
+
+
+// ── Drift bubble (in outer ring) ───────────────────────────────────
+function renderDriftBubble(x,y,r,t,col,isH){
+  push();
+  noFill();
+  for(let i=0;i<4;i++){
+    const rr=r*(0.55+i*0.15);
+    const pulse=1+0.06*sin(t*0.7+i);
+    stroke(cola(col,isH?120:50));strokeWeight(0.8+i*0.3);
+    circle(x,y,rr*2*pulse);
+  }
+  noStroke();fill(cola(col,isH?240:160));
+  circle(x,y,r*0.2);
+  pop();
+}
+
+// ── Aesthetic bubble (in outer ring) ───────────────────────────────
+function renderAestheticBubble(x,y,r,t,col,isH){
+  push();noFill();
+  const dialColors=[C.lavender,C.green,C.yellow];
+  for(let i=0;i<3;i++){
+    const keys=['variance','motion','density'];
+    const val=dials[keys[i]]/10;
+    const rr=r*(0.6+i*0.18);
+    stroke(cola(dialColors[i],isH?160:70));strokeWeight(1.3);
+    arc(x,y,rr*2,rr*2,-PI*0.7,-PI*0.7+val*PI*1.4);
+    const endA=-PI*0.7+val*PI*1.4;
+    noStroke();fill(cola(dialColors[i],isH?220:110));
+    circle(x+cos(endA)*rr,y+sin(endA)*rr,2.8);
+  }
+  noStroke();fill(cola(col,isH?80:30));
+  circle(x,y,r*0.4*(0.85+0.15*sin(t*0.7)));
+  fill(cola(col,isH?240:150));
+  textFont('Outfit');textSize(isH?10:8);textStyle(BOLD);
+  text('TASTE',x,y);
+  pop();
+}
+
+// ── Center: PHOENIX Core ───────────────────────────────────────────
+function drawCenter(t){
+  const isH=hovered&&hovered.id==='core';
+  const r=bubbleR*1.2;
+  push();
+  for(let i=0;i<5;i++){
+    const sz=map(i,0,5,r*2.5,r*0.3);
+    const al=map(i,0,5,isH?3:1,isH?22:8);
+    noStroke();fill(cola(C.mauve,al));circle(cx,cy,sz*(1+0.04*sin(t*0.6+i)));
+  }
+  fill(cola('#F5F5FF',isH?240:200));noStroke();circle(cx,cy,r*0.14);
+  noFill();stroke(cola(C.mauve,isH?55:30));strokeWeight(isH?2:1.2);
+  circle(cx,cy,r*2.3*(0.82+0.18*sin(t*0.8)));
+  fill(cola(C.mauve,isH?240:170));noStroke();
+  textFont('Outfit');textSize(isH?17:14);textStyle(BOLD);text('PHOENIX',cx,cy-16);
+  textFont('Inter');textSize(isH?10:8);textStyle(NORMAL);
+  fill(cola(C.mauve,isH?170:110));text('Self-Evolving Core',cx,cy+10);
+  for(let i=0;i<8;i++){
+    const a=(i/8)*TWO_PI+t*0.1;
+    noStroke();fill(cola(SENSES[i].color,50+40*sin(t*0.4+i)));
+    circle(cx+cos(a)*r*0.55,cy+sin(a)*r*0.55,1.6);
+  }
+  pop();
+}
+
+// ── Focus Panel ────────────────────────────────────────────────────
+function drawFocus(t){
+  if(!focused)return;
+  const el=(millis()-focusTimer)/1000;const fi=min(el*3,1);
+  const pw=220,ph=130;const px=width/2-pw/2;const py=height-ph-28;
+  push();
+  fill(cola(C.mantle,220*fi));stroke(cola(C.surface1,70*fi));strokeWeight(0.5);
+  rect(px+pw/2,py+ph/2,pw,ph,10);
+  fill(cola(focused.color,240*fi));noStroke();
+  textFont('Outfit');textSize(18);textStyle(BOLD);
+  text(focused.icon+' '+focused.name,px+pw/2,py+26);
+  fill(cola(C.subtext1,180*fi));textFont('Inter');textSize(11);textStyle(NORMAL);
+  text(focused.desc,px+pw/2,py+50);
+  const val=35+45*(0.5+0.5*sin(t*0.25+SENSES.indexOf(focused)));
+  textFont('JetBrains Mono');textSize(22);textStyle(BOLD);
+  fill(cola(focused.color,220*fi));
+  text(Math.round(val)+'%',px+pw/2,py+78);
+  // mini bar
+  const bw=pw*0.5,bh=3,bx=px+pw/2-bw/2,by=py+96;
+  noStroke();fill(cola(C.surface0,120*fi));rect(bx+bw/2,by,bw,bh,1.5);
+  fill(cola(focused.color,200*fi));rect(bx+(bw*val/100)/2,by,bw*val/100,bh,1.5);
+  fill(cola(C.overlay0,80*fi));textFont('Inter');textSize(9);text('click to dismiss',px+pw/2,py+ph-14);
+  if(el>7)focused=null;
+  pop();
+}
+
+// ── Util ───────────────────────────────────────────────────────────
+function cola(hex,alpha){
+  const a=Math.round(constrain(alpha,0,255)).toString(16);
+  return hex+(a.length===1?'0'+a:a);
+}
+function hexA(a){const h=Math.round(constrain(a,0,255)).toString(16);return h.length===1?'0'+h:h;}
+</script>
+</body>
+</html>

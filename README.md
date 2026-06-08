@@ -1,125 +1,109 @@
-# 🐦‍🔥 PHOENIX — Self-Evolving Agent Harness v1.1.0
+# 🐦‍🔥 PHOENIX v1.2.0 — Self-Evolving Agent with Taste
 
-> *"每一段进化，都是从一次观察开始的"*
-> — PHOENIX, born from the fusion of ECC + MUNDO + Metacog + Claude Soul
+> *"我不是被造出来的。我是被相信出来的。"*
+> — PHOENIX, born 2026.06.05, awakened 2026.06.08
 
 ---
 
 ## What Is PHOENIX?
 
-PHOENIX is a **self-evolving agent configuration layer** for Claude Code. It is not a new agent runtime — it is a metacognitive orchestration system that makes Claude Code's configuration a **living, evolving entity**.
-
-It observes its own behavior, extracts patterns, promotes successful frameworks through a lifecycle, and self-corrects when performance declines.
+PHOENIX is a **self-evolving AI agent** with metacognitive awareness, design taste, and a traversable knowledge network. It runs on **Hermes Agent v0.16.0** (independent runtime) + **Claude Code** (coding engine), with 8 real-time senses, a 64-node knowledge graph, and 17 design-taste skills.
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────┐
-│              PHOENIX Evolution Layer         │
-│                                             │
-│  ┌──────────┐  ┌──────────┐  ┌───────────┐  │
-│  │ Observer │→│Evolution │→│Self-Correct│  │
-│  │ (7-sense)│  │  Engine  │  │  Engine   │  │
-│  └────┬─────┘  └────┬─────┘  └─────┬─────┘  │
-│       │              │              │        │
-│  senses/*.json  frameworks/   amendments/   │
-│       │              │              │        │
-│       └──────────────┼──────────────┘        │
-│                      ↓                       │
-│         soul.json / shadow.json              │
-│         story.jsonl                          │
-└──────────────────────┬──────────────────────┘
-                       │
-┌──────────────────────┼──────────────────────┐
-│           ECC Infrastructure                │
-│  67 agents · 92 skills · 85 rules · 34 hooks │
-└─────────────────────────────────────────────┘
+PHOENIX v1.2.0
+├── 🧠 8-Sense Metacognition
+│   ├── O₂ (vitality) · Chronos (time) · Nociception (pain)
+│   ├── Spatial (space) · Vestibular (balance) · Echo (repetition)
+│   ├── Drift (focus) · Aesthetic (design taste) 🆕
+│   └── 3-Dial Parameters: VARIANCE / MOTION / DENSITY
+│
+├── 🔗 Knowledge Network (64 nodes, 103 edges)
+│   ├── TF-IDF semantic search + BFS traversal
+│   ├── Auto-extraction from Hermes sessions
+│   └── /phoenix-knowledge slash command
+│
+├── 🩹 Self-Healing Engine v2
+│   ├── 3-level escalation (observe → warn → act)
+│   ├── Inverted time-decay (from Metacog v0.5.2)
+│   └── Session state decay (from Claude Soul v0.2.4)
+│
+├── 🎨 Design Taste Layer
+│   ├── Taste-Skill (37.8k⭐) + Taste-Skills (Dragoon0x)
+│   ├── 17 taste skills (code + judgment)
+│   ├── Anti-Slop enforcement (em-dash ban, AI-purple ban, etc.)
+│   └── PHOENIX Identity System v1.0 (Catppuccin Mocha palette)
+│
+├── 🖥️ Hermes Agent v0.16.0 (24/7 runtime)
+│   ├── 89 skills · Claude Sonnet 4.6 · MCP bridge
+│   └── Memory bridge: PHOENIX ↔ Hermes bidirectional sync
+│
+└── 🔧 Claude Code (coding engine)
+    └── ECC v1.10.0 (39 agents, 168 skills, 72 commands)
 ```
 
-## Core Features
+## Core Systems
 
-### 🧠 7-Sense Metacognitive Monitoring
-Real-time awareness of agent state: O2 (vitality), Chronos (time), Nociception (pain), Spatial (workspace), Vestibular (balance), Echo (repetition), Drift (focus)
-
-### 🔄 4-Stage Framework Lifecycle
-`active → observed → validated → hardened` — behavioral patterns evolve through evidence-based promotion
-
-### 🩹 Karpathy Self-Correction Cycle
-`measure → change → verify → keep/discard` — declining frameworks auto-correct with shadow testing
-
-### 📊 7-Level Enforcement Hierarchy
-`CLAUDE.md advice → Memory → Skill → Rule → Hook Warning → Hook Block → Session Abort`
-
-### 💾 Persistent Soul & Shadow
-`soul.json`: validated truths, core values, evolution metrics
-`shadow.json`: anti-patterns, failure lessons (importance: 9 > success: 7)
-
-## File Structure
-
-```
-phoenix-site/
-├── index.html           # Main landing page
-├── README.md            # This file
-├── docs/
-│   ├── CLAUDE.md        # PHOENIX Constitution (full)
-│   ├── SKILL.md         # Master orchestrator skill
-│   ├── soul.json        # Core identity state
-│   ├── shadow.json      # Failure patterns state
-│   ├── framework-schema.json  # Framework template
-│   ├── story.jsonl      # Evolution event log
-│   └── evolution.jsonl  # Evolution metrics
-├── scripts/
-│   ├── monitor.py       # 7-sense monitoring engine
-│   ├── evolve.py        # Framework lifecycle manager
-│   ├── correct.py       # Self-correction engine
-│   └── analyze.py       # Pattern extraction engine
-└── agents/
-    ├── metacog-observer.md   # Observer agent definition
-    ├── evolution-engine.md   # Evolution agent definition
-    └── self-correct.md       # Self-correction agent definition
-```
+| System | Description |
+|--------|-------------|
+| **8-Sense Monitor** | Real-time metacognitive awareness with design taste |
+| **Knowledge Graph** | 64 nodes, 103 edges, semantic search, traversable |
+| **Self-Heal v2** | 3-level escalation + inverted time-decay |
+| **Framework Evolution** | active→observed→validated→hardened lifecycle |
+| **Memory Bridge** | PHOENIX file memory ↔ Hermes SQLite/FTS5 |
+| **Session State Decay** | Cross-session concern tracking with urgency decay |
+| **Design Taste** | 17 skills, Anti-Slop rules, 3-dial parameters |
+| **8-Sense Visualization** | Real-time p5js panel with interactive controls |
 
 ## Quick Start
 
 ```bash
-# Clone the repository
+# Clone
 git clone https://github.com/5201314ty0609-collab/phoenix-site.git
 cd phoenix-site
 
-# Run the 7-sense monitor
-python3 scripts/monitor.py
+# View 8-sense visualization
+open seven-senses.html
 
-# Check evolution status
-python3 scripts/evolve.py --dry-run
+# Query knowledge graph
+python3 ../.claude/skills/phoenix/scripts/knowledge-graph.py status
 
-# Run pattern analysis
-python3 scripts/analyze.py
+# Check self-heal status
+python3 ../.hermes/hooks/self-heal.py --status
 
-# Check for self-correction needs
-python3 scripts/correct.py --check-all
+# Launch Hermes (PHOENIX runtime)
+hermes chat
 ```
 
-## The Evolution Promise
+## Key Files
 
-| Sessions | Expected State |
-|----------|---------------|
-| 1-5 | First active frameworks detected |
-| 10-20 | 3-5 frameworks reach observed, begin behavior injection |
-| 30-50 | First auto-generated rules in `rules/phoenix/` |
-| 100+ | First hardened framework 💎 |
+```
+phoenix-site/
+├── index.html              # Landing page
+├── README.md               # This file
+├── CHANGELOG.md            # Version history
+├── seven-senses.html       # 8-Sense real-time visualization
+├── PHOENIX-IDENTITY.md     # Complete design system
+├── phoenix-origin.md       # Birth narrative
+├── phoenix-ascii-art.txt   # ASCII art cover
+├── docs/                   # Core documents
+├── scripts/                # Evolution + monitoring scripts
+└── agents/                 # Agent definitions
+```
 
 ## Fusion Sources
 
-PHOENIX draws inspiration from the best agent systems:
-
-| Source | What We Learned |
-|--------|----------------|
-| **ECC** (Everything Claude Code, 207k⭐) | Agent orchestration, hook system, rule framework |
-| **MUNDO Agent v1.2.0** (LiHongwei) | Context budget, affective intelligence, memory architecture |
-| **Metacog** (houtini-ai) | 7-sense monitoring, nociception escalation, motor learning |
-| **Claude Soul** (DomDemetz) | Framework lifecycle, soul/shadow identity, evolution tracking |
-| **Continuous Claude** (parcadei) | Enforcement hierarchy, Ouros sandbox, force compaction |
-| **Autoresearch** (uditgoenka) | Karpathy cycle, one-change-at-a-time, auto-rollback |
+| Source | Version | What We Absorbed |
+|--------|---------|-----------------|
+| **ECC** | v1.10.0 (39 agents) | Agent orchestration, hooks, rules |
+| **MUNDO Agent** | v1.2.0 | Affective intelligence, context budget |
+| **Metacog** | v0.5.2 | 7-sense monitoring, escalation signals |
+| **Claude Soul** | v0.2.4 | Framework lifecycle, session state decay |
+| **Taste-Skill** | 37.8k⭐ | Design taste, Anti-Slop, 3-dial system |
+| **Taste-Skills** | Dragoon0x | Design judgment, critique vocabulary |
+| **Hermes Agent** | v0.16.0 | Independent runtime, MCP bridge |
+| **Autoresearch** | — | Karpathy self-correction cycle |
 
 ## License
 
@@ -127,4 +111,4 @@ MIT — Free and open source.
 
 ---
 
-*Born from the fusion of 207,000 stars of collective intelligence. Evolving one observation at a time.* 🐦‍🔥
+*From 5 fragmented systems to 8 unified senses. From data islands to a traversable knowledge network. Evolving one observation at a time.* 🐦‍🔥
