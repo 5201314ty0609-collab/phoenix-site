@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="description" content="PHOENIX v1.2.0 — 可视化控制台 · 实时监控 Agent 状态、工具防护、八感健康">
+<title>PHOENIX · 可视化控制台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  /* ═════════════════════════════════════════════════════════════════
+     PHOENIX Dashboard · Catppuccin Mocha · Lavender Brand
+     ═════════════════════════════════════════════════════════════════ */
+  :root {
+    --phx-base: #11111B;
+    --phx-mantle: #181825;
+    --phx-crust: #1E1E2E;
+    --phx-surface0: #313244;
+    --phx-surface1: #45475A;
+    --phx-surface2: #585B70;
+    --phx-overlay0: #6C7086;
+    --phx-overlay1: #7F849C;
+    --phx-overlay2: #9399B2;
+    --phx-subtext0: #A6ADC8;
+    --phx-subtext1: #BAC2DE;
+    --phx-text: #CDD6F4;
+    --phx-lavender: #B4BEFE;
+    --phx-blue: #89B4FA;
+    --phx-sky: #89DCEB;
+    --phx-teal: #94E2D5;
+    --phx-green: #A6E3A1;
+    --phx-yellow: #F9E2AF;
+    --phx-peach: #FAB387;
+    --phx-red: #F38BA8;
+    --phx-mauve: #CBA6F7;
+    --phx-pink: #F5C2E7;
+
+    --radius: 10px;
+    --gap: 14px;
+    --font: 'Inter', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-heading: 'Outfit', system-ui, sans-serif;
+
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--font); background: var(--phx-base); color: var(--phx-text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+  /* ── Background noise ─────────────────────────────────────────── */
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at 30% 0%, rgba(180,190,254,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 20%, rgba(245,194,231,0.04) 0%, transparent 50%);
+  }
+
+  /* ── Navigation ────────────────────────────────────────────────── */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 24px;
+    background: rgba(17, 17, 27, 0.85);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--phx-surface0);
+  }
+  .nav-brand {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--font-heading); font-weight: 700; font-size: 15px;
+    color: var(--phx-text); text-decoration: none;
+  }
+  .nav-brand:hover { color: var(--phx-lavender); }
+  .nav-links { display: flex; align-items: center; gap: 16px; }
+  .nav-link {
+    font-size: 12px; color: var(--phx-overlay1); text-decoration: none;
+    transition: color 0.2s var(--ease-out);
+  }
+  .nav-link:hover { color: var(--phx-lavender); }
+  .nav-status {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; color: var(--phx-subtext0);
+  }
+
+  /* ── Main container ────────────────────────────────────────────── */
+  .main { padding: 20px 24px 32px; position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; }
+
+  /* ── Status dot ─────────────────────────────────────────────────── */
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .dot.ok { background: var(--phx-green); box-shadow: 0 0 6px var(--phx-green); }
+  .dot.warn { background: var(--phx-yellow); animation: pulse 1.5s infinite; }
+  .dot.error { background: var(--phx-red); }
+  @keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: .3 } }
+
+  /* ── Grid layout ────────────────────────────────────────────────── */
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--gap); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-full { grid-template-columns: 1fr; }
+
+  /* ── Card ────────────────────────────────────────────────────────── */
+  .card {
+    background: var(--phx-mantle); border-radius: var(--radius); padding: 18px;
+    border: 1px solid var(--phx-surface0); transition: border-color 0.2s var(--ease-out);
+  }
+  .card:hover { border-color: var(--phx-surface1); }
+  .card h3 {
+    font-family: var(--font-heading); font-size: 13px; font-weight: 600;
+    color: var(--phx-lavender); margin-bottom: 14px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .card h3 .badge {
+    font-family: var(--font-mono); font-size: 9px; padding: 2px 8px; border-radius: 10px;
+    background: rgba(180,190,254,0.1); color: var(--phx-lavender);
+  }
+
+  /* ── Chart container ───────────────────────────────────────────── */
+  .chart-container { position: relative; width: 100%; height: 250px; }
+  .chart-container.small { height: 180px; }
+
+  /* ── Stats ───────────────────────────────────────────────────────── */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+  .stat {
+    background: var(--phx-mantle); border-radius: 8px; padding: 16px;
+    text-align: center; border: 1px solid var(--phx-surface0);
+    transition: border-color 0.2s var(--ease-out);
+  }
+  .stat:hover { border-color: var(--phx-surface1); }
+  .stat .num { font-family: var(--font-mono); font-size: 1.8rem; font-weight: 800; color: var(--phx-lavender); }
+  .stat .label { font-size: 11px; color: var(--phx-overlay0); margin-top: 4px; }
+  .stat .trend { font-size: 10px; margin-top: 4px; }
+  .stat .trend.up { color: var(--phx-green); }
+  .stat .trend.down { color: var(--phx-red); }
+
+  /* ── Table ───────────────────────────────────────────────────────── */
+  .table-container { max-height: 300px; overflow-y: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid rgba(49,50,68,0.5); }
+  th {
+    color: var(--phx-lavender); font-weight: 600; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    position: sticky; top: 0; background: var(--phx-mantle);
+  }
+  tr:hover { background: rgba(180,190,254,0.03); }
+
+  /* ── Sense grid ─────────────────────────────────────────────────── */
+  .sense-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .sense-item { background: var(--phx-crust); border-radius: 8px; padding: 12px; text-align: center; }
+  .sense-item .icon { font-size: 1.5rem; margin-bottom: 4px; }
+  .sense-item .name { font-size: 10px; color: var(--phx-overlay0); }
+  .sense-item .status { font-size: 11px; font-weight: 600; margin-top: 4px; }
+  .sense-item .status.ok { color: var(--phx-green); }
+  .sense-item .status.warn { color: var(--phx-yellow); }
+  .sense-item .status.error { color: var(--phx-red); }
+
+  /* ── Timeline ────────────────────────────────────────────────────── */
+  .timeline-entry { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid rgba(49,50,68,0.3); }
+  .timeline-entry:last-child { border-bottom: none; }
+  .timeline-time { font-family: var(--font-mono); font-size: 11px; color: var(--phx-overlay0); white-space: nowrap; min-width: 60px; }
+  .timeline-type {
+    font-size: 10px; padding: 2px 8px; border-radius: 10px;
+    background: rgba(180,190,254,0.08); color: var(--phx-lavender); min-width: 70px; text-align: center;
+  }
+  .timeline-desc { font-size: 12px; flex: 1; color: var(--phx-subtext1); }
+
+  /* ── Buttons ─────────────────────────────────────────────────────── */
+  .btn {
+    padding: 6px 14px; border-radius: 6px; border: 1px solid var(--phx-surface0);
+    cursor: pointer; font-size: 11px; font-family: var(--font);
+    background: var(--phx-crust); color: var(--phx-text); transition: all 0.2s var(--ease-out);
+  }
+  .btn:hover { border-color: var(--phx-lavender); background: var(--phx-mantle); }
+  .btn.primary { background: var(--phx-lavender); color: var(--phx-base); border-color: var(--phx-lavender); }
+
+  /* ── Toast ────────────────────────────────────────────────────────── */
+  .toast {
+    position: fixed; bottom: 20px; right: 20px; padding: 10px 18px;
+    border-radius: 8px; font-size: 12px; z-index: 200; font-weight: 600;
+    animation: up 0.3s var(--ease-out);
+  }
+  @keyframes up { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
+  .toast.ok { background: var(--phx-green); color: var(--phx-base); }
+  .toast.err { background: var(--phx-red); color: var(--phx-base); }
+
+  /* ── Persona ─────────────────────────────────────────────────────── */
+  .persona-card {
+    background: var(--phx-mantle); border-radius: var(--radius); padding: 18px;
+    border: 1px solid var(--phx-surface0);
+  }
+  .persona-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .persona-header h3 {
+    font-family: var(--font-heading); font-size: 13px; font-weight: 600;
+    color: var(--phx-lavender); display: flex; align-items: center; gap: 8px;
+  }
+  .persona-header .badge {
+    font-family: var(--font-mono); font-size: 9px; padding: 2px 8px; border-radius: 10px;
+    background: rgba(180,190,254,0.1); color: var(--phx-lavender);
+  }
+  .persona-content { font-size: 12px; line-height: 1.7; }
+  .persona-content .layer { margin-bottom: 12px; padding: 12px; background: var(--phx-crust); border-radius: 8px; }
+  .persona-content .layer-title { font-size: 11px; color: var(--phx-lavender); margin-bottom: 6px; font-weight: 600; }
+  .persona-content .layer-content { font-size: 11px; color: var(--phx-overlay1); }
+  .persona-content .highlight { color: var(--phx-blue); font-weight: 600; }
+  .persona-content .value { color: var(--phx-green); }
+
+  /* ── Team ────────────────────────────────────────────────────────── */
+  .team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+  .member-card {
+    background: var(--phx-crust); border-radius: 8px; padding: 16px;
+    border: 1px solid var(--phx-surface0); transition: border-color 0.2s var(--ease-out);
+  }
+  .member-card:hover { border-color: var(--phx-surface1); }
+  .member-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .member-name { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .member-tier { font-family: var(--font-mono); font-size: 9px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+  .member-tier.founder { background: rgba(249,226,175,0.15); color: var(--phx-yellow); }
+  .member-tier.partner { background: rgba(137,180,250,0.15); color: var(--phx-blue); }
+  .member-tier.user { background: rgba(166,227,161,0.15); color: var(--phx-green); }
+  .member-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
+  .member-stat { font-size: 11px; color: var(--phx-overlay1); }
+  .member-stat strong { color: var(--phx-text); }
+  .persona-preview {
+    font-size: 11px; color: var(--phx-overlay1); margin-top: 8px;
+    padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px; max-height: 100px; overflow-y: auto;
+  }
+  .privacy-badge {
+    font-family: var(--font-mono); font-size: 9px; padding: 2px 6px; border-radius: 8px;
+    background: rgba(243,139,168,0.12); color: var(--phx-red); margin-left: 6px;
+  }
+
+  /* ── Footer ──────────────────────────────────────────────────────── */
+  .footer {
+    text-align: center; margin-top: 28px; padding: 20px 0;
+    border-top: 1px solid var(--phx-surface0); color: var(--phx-overlay0); font-size: 10px;
+  }
+  .footer a { color: var(--phx-lavender); text-decoration: none; transition: color 0.2s; }
+  .footer a:hover { color: var(--phx-pink); }
+
+  /* ── Responsive ──────────────────────────────────────────────────── */
+  @media (max-width: 1024px) {
+    .grid { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 768px) {
+    .main { padding: 16px 14px 24px; }
+    .stats { grid-template-columns: 1fr; }
+    .sense-grid { grid-template-columns: repeat(2, 1fr); }
+    .nav { padding: 10px 14px; }
+    .nav-brand span.brand-full { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav">
+  <a class="nav-brand" href="index.html">
+    <span>🐦‍🔥</span>
+    <span>PHOENIX</span>
+    <span class="brand-full" style="font-size:12px;color:var(--phx-overlay1);font-weight:400">· 可视化控制台</span>
+  </a>
+  <div class="nav-links">
+    <div class="nav-status">
+      <span class="dot" id="nav-dot"></span>
+      <span id="nav-conn-text">连接中...</span>
+      <span style="color:var(--phx-overlay0);margin-left:4px" id="nav-conn-time"></span>
+    </div>
+    <a class="nav-link" href="index.html">← 返回主页</a>
+    <a class="nav-link" href="https://github.com/5201314ty0609-collab/phoenix" target="_blank">GitHub ↗</a>
+  </div>
+</nav>
+
+<div class="main">
+
+<!-- Stats Overview -->
+<div class="stats">
+  <div class="stat">
+    <div class="num" id="stat-tools">-</div>
+    <div class="label">工具调用总数</div>
+    <div class="trend up" id="stat-tools-trend">加载中</div>
+  </div>
+  <div class="stat">
+    <div class="num" id="stat-sessions">-</div>
+    <div class="label">会话次数</div>
+    <div class="trend" id="stat-sessions-trend">加载中</div>
+  </div>
+  <div class="stat">
+    <div class="num" id="stat-warned" style="font-size:1.4rem;color:var(--phx-yellow)">-</div>
+    <div class="label">警告次数</div>
+    <div class="trend" id="stat-warned-trend">加载中</div>
+  </div>
+  <div class="stat">
+    <div class="num" id="stat-blocked" style="font-size:1.4rem;color:var(--phx-red)">-</div>
+    <div class="label">阻断次数</div>
+    <div class="trend" id="stat-blocked-trend">加载中</div>
+  </div>
+</div>
+
+<!-- Error & Framework Stats -->
+<div class="stats" style="margin-bottom:16px">
+  <div class="stat">
+    <div class="num" id="stat-errors" style="font-size:1.4rem;color:var(--phx-red)">-</div>
+    <div class="label">错误次数</div>
+    <div class="trend" id="stat-errors-trend">加载中</div>
+  </div>
+  <div class="stat">
+    <div class="num" id="stat-frameworks" style="font-size:1.4rem;color:var(--phx-lavender)">-</div>
+    <div class="label">活跃框架</div>
+    <div class="trend" id="stat-frameworks-trend">加载中</div>
+  </div>
+  <div class="stat">
+    <div class="num" id="stat-halted" style="font-size:1.4rem;color:var(--phx-mauve)">-</div>
+    <div class="label">强制中止</div>
+  </div>
+  <div class="stat">
+    <div class="num" id="stat-success-rate" style="font-size:1.4rem;color:var(--phx-green)">-</div>
+    <div class="label">成功率</div>
+  </div>
+</div>
+
+<!-- Model & Tool Guard -->
+<div class="grid" style="margin-bottom:16px">
+  <div class="card">
+    <h3>⚙️ 当前模型</h3>
+    <div id="model-config" style="font-size:12px">
+      <div style="text-align:center;color:var(--phx-overlay0);padding:10px">加载中...</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🛡️ 工具防护 <span class="badge" id="tool-guard-badge">正常</span></h3>
+    <div id="tool-guard-detail" style="font-size:12px">
+      <div style="text-align:center;color:var(--phx-overlay0);padding:10px">加载中...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts Row -->
+<div class="grid" style="margin-bottom:16px">
+  <div class="card">
+    <h3>📊 工具使用频率 <span class="badge">最近 7 天</span></h3>
+    <div class="chart-container">
+      <canvas id="toolUsageChart"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📈 活动趋势 <span class="badge">按天</span></h3>
+    <div class="chart-container">
+      <canvas id="activityChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Second Row -->
+<div class="grid grid-3" style="margin-bottom:16px">
+  <div class="card">
+    <h3>👁️ 7-Sense 健康雷达</h3>
+    <div class="chart-container small">
+      <canvas id="senseRadar"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>⚠️ 错误率趋势</h3>
+    <div class="chart-container small">
+      <canvas id="errorChart"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🎯 事件类型分布</h3>
+    <div class="chart-container small">
+      <canvas id="eventPie"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Third Row -->
+<div class="grid" style="margin-bottom:16px">
+  <div class="card">
+    <h3>🧠 系统感知状态</h3>
+    <div class="sense-grid" id="sense-grid"></div>
+  </div>
+
+  <div class="card">
+    <h3>📜 最近活动 <span class="badge" id="timeline-count">0 条</span></h3>
+    <div class="table-container" id="timeline-list"></div>
+  </div>
+</div>
+
+<!-- Tool Guard Details -->
+<div class="grid grid-full" style="margin-bottom:16px">
+  <div class="card">
+    <h3>🛡️ 工具防护详情 <span class="badge" id="guard-status">正常</span></h3>
+    <div class="grid" style="grid-template-columns:repeat(3,1fr)">
+      <div>
+        <h4 style="font-size:11px;color:var(--phx-overlay0);margin-bottom:8px">最近警告</h4>
+        <div id="guard-warnings" style="font-size:12px"></div>
+      </div>
+      <div>
+        <h4 style="font-size:11px;color:var(--phx-overlay0);margin-bottom:8px">工具健康度</h4>
+        <div id="guard-health" style="font-size:12px"></div>
+      </div>
+      <div>
+        <h4 style="font-size:11px;color:var(--phx-overlay0);margin-bottom:8px">防护统计</h4>
+        <div id="guard-stats" style="font-size:12px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Persona Section -->
+<div class="grid grid-full" style="margin-bottom:16px">
+  <div class="persona-card">
+    <div class="persona-header">
+      <h3>🧬 你的画像 <span class="badge">PHOENIX 对你的理解</span></h3>
+      <div>
+        <span id="persona-status" style="font-size:11px;color:var(--phx-overlay0)">加载中...</span>
+        <button class="btn" onclick="rebuildPersona()" style="margin-left:8px;font-size:10px">强制重建</button>
+      </div>
+    </div>
+    <div class="persona-content" id="persona-content">
+      <div style="text-align:center;color:var(--phx-overlay0);padding:20px">加载中...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Team Members Section -->
+<div class="grid grid-full">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <h3 style="margin-bottom:0">👥 团队成员 <span class="badge" id="team-count">0 人</span></h3>
+      <div style="font-size:11px;color:var(--phx-overlay0)">
+        <span class="privacy-badge">🔒 隐私模式</span>
+        <span style="margin-left:6px">创始人可查看所有画像，其他成员只能看自己</span>
+      </div>
+    </div>
+    <div class="team-grid" id="team-grid">
+      <div style="text-align:center;color:var(--phx-overlay0);padding:20px;grid-column:1/-1">加载中...</div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <span>🐦‍🔥 PHOENIX v1.2.0 · 可视化控制台 v1.0 · 数据每 30 秒自动刷新</span>
+  · <a href="index.html">返回主页</a>
+  · <a href="https://github.com/5201314ty0609-collab/phoenix" target="_blank">GitHub ↗</a>
+</footer>
+
+</div><!-- /.main -->
+
+<script>
+// ── Data Store ──
+const DATA = {
+  toolGuard: null,
+  timeline: null,
+  senses: null,
+  status: null
+};
+
+// ── Charts ──
+let charts = {};
+
+// ── Chart.js global defaults (Catppuccin Mocha) ──
+Chart.defaults.color = '#6C7086';
+Chart.defaults.borderColor = 'rgba(49, 50, 68, 0.5)';
+
+// ── Utility ──
+function toast(msg, ok = true) {
+  const t = document.createElement('div');
+  t.className = 'toast ' + (ok ? 'ok' : 'err');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+function setConn(ok, msg) {
+  const dot = document.getElementById('nav-dot');
+  const text = document.getElementById('nav-conn-text');
+  const time = document.getElementById('nav-conn-time');
+  dot.className = 'dot ' + (ok ? 'ok' : 'warn');
+  text.textContent = msg || (ok ? 'PHOENIX 引擎已连接' : '连接中...');
+  time.textContent = new Date().toLocaleTimeString('zh-CN');
+}
+
+// ── Fetch Data ──
+const API_BASE = 'http://127.0.0.1:8765';
+async function fetchJSON(path) {
+  try {
+    const r = await fetch(API_BASE + path);
+    return await r.json();
+  } catch (e) {
+    console.error('Fetch error:', path, e);
+    return null;
+  }
+}
+
+// ── Initialize Charts ──
+function initCharts() {
+  // Tool Usage Bar Chart
+  const toolCtx = document.getElementById('toolUsageChart').getContext('2d');
+  charts.toolUsage = new Chart(toolCtx, {
+    type: 'bar',
+    data: {
+      labels: [],
+      datasets: [{
+        label: '调用次数',
+        data: [],
+        backgroundColor: 'rgba(180, 190, 254, 0.5)',
+        borderColor: 'rgba(180, 190, 254, 0.9)',
+        borderWidth: 1,
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(24, 24, 37, 0.95)',
+          titleColor: '#B4BEFE',
+          bodyColor: '#CDD6F4',
+          borderColor: 'rgba(49, 50, 68, 0.8)',
+          borderWidth: 1
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(49, 50, 68, 0.4)' },
+          ticks: { color: '#6C7086', font: { size: 10 } }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: '#6C7086', font: { size: 10 } }
+        }
+      }
+    }
+  });
+
+  // Activity Line Chart
+  const actCtx = document.getElementById('activityChart').getContext('2d');
+  charts.activity = new Chart(actCtx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: '事件数',
+        data: [],
+        borderColor: '#A6E3A1',
+        backgroundColor: 'rgba(166, 227, 161, 0.1)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 4,
+        pointBackgroundColor: '#A6E3A1'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(24, 24, 37, 0.95)',
+          titleColor: '#B4BEFE',
+          bodyColor: '#CDD6F4'
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(49, 50, 68, 0.4)' },
+          ticks: { color: '#6C7086', font: { size: 10 } }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: '#6C7086', font: { size: 10 } }
+        }
+      }
+    }
+  });
+
+  // 7-Sense Radar Chart
+  const radarCtx = document.getElementById('senseRadar').getContext('2d');
+  charts.senseRadar = new Chart(radarCtx, {
+    type: 'radar',
+    data: {
+      labels: ['O₂ 压力', '痛觉', '漂移', '回声', '时间', '空间', '平衡'],
+      datasets: [{
+        label: '健康度',
+        data: [100, 100, 100, 100, 100, 100, 100],
+        backgroundColor: 'rgba(166, 227, 161, 0.15)',
+        borderColor: 'rgba(166, 227, 161, 0.8)',
+        borderWidth: 2,
+        pointBackgroundColor: '#A6E3A1'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        r: {
+          beginAtZero: true,
+          max: 100,
+          grid: { color: 'rgba(49, 50, 68, 0.4)' },
+          angleLines: { color: 'rgba(49, 50, 68, 0.4)' },
+          pointLabels: { color: '#CDD6F4', font: { size: 10 } },
+          ticks: { display: false }
+        }
+      }
+    }
+  });
+
+  // Error Rate Chart
+  const errCtx = document.getElementById('errorChart').getContext('2d');
+  charts.error = new Chart(errCtx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: '错误率',
+        data: [],
+        borderColor: '#F38BA8',
+        backgroundColor: 'rgba(243, 139, 168, 0.1)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: (ctx) => ctx.parsed.y.toFixed(1) + '%' }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          grid: { color: 'rgba(49, 50, 68, 0.4)' },
+          ticks: { color: '#6C7086', font: { size: 10 }, callback: (v) => v + '%' }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: '#6C7086', font: { size: 10 } }
+        }
+      }
+    }
+  });
+
+  // Event Type Pie Chart
+  const pieCtx = document.getElementById('eventPie').getContext('2d');
+  charts.eventPie = new Chart(pieCtx, {
+    type: 'doughnut',
+    data: {
+      labels: [],
+      datasets: [{
+        data: [],
+        backgroundColor: [
+          'rgba(180, 190, 254, 0.8)',
+          'rgba(166, 227, 161, 0.8)',
+          'rgba(249, 226, 175, 0.8)',
+          'rgba(243, 139, 168, 0.8)',
+          'rgba(203, 166, 247, 0.8)',
+          'rgba(137, 220, 235, 0.8)'
+        ],
+        borderColor: 'var(--phx-mantle)',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: { color: '#CDD6F4', font: { size: 10 }, padding: 8 }
+        }
+      }
+    }
+  });
+}
+
+// ── Update Charts ──
+function updateToolUsageChart(toolGuard) {
+  if (!toolGuard) return;
+  const history = toolGuard.history || [];
+  const toolCounts = {};
+  history.forEach(entry => {
+    const tool = entry.tool || 'unknown';
+    toolCounts[tool] = (toolCounts[tool] || 0) + 1;
+  });
+  const sorted = Object.entries(toolCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  charts.toolUsage.data.labels = sorted.map(([tool]) => tool);
+  charts.toolUsage.data.datasets[0].data = sorted.map(([, count]) => count);
+  charts.toolUsage.update();
+}
+
+function updateActivityChart(timeline) {
+  if (!timeline) return;
+  const entries = timeline.entries || [];
+  const dayCounts = {};
+  entries.forEach(entry => {
+    const date = (entry.timestamp || '').slice(0, 10);
+    if (date) dayCounts[date] = (dayCounts[date] || 0) + 1;
+  });
+  const sortedDays = Object.keys(dayCounts).sort().slice(-14);
+  charts.activity.data.labels = sortedDays.map(d => d.slice(5));
+  charts.activity.data.datasets[0].data = sortedDays.map(d => dayCounts[d]);
+  charts.activity.update();
+}
+
+function updateSenseRadar(senses) {
+  if (!senses) return;
+  const senseData = senses.senses || {};
+  const values = [];
+  const labels = ['o2', 'nociception', 'drift', 'echo', 'chronos', 'spatial', 'vestibular'];
+  labels.forEach(key => {
+    const sense = senseData[key] || {};
+    let value = 100;
+    if (sense.trend === 'alert') value = 20;
+    else if (sense.trend === 'warn') value = 50;
+    else if (sense.state === 'ok') value = 90;
+    values.push(value);
+  });
+  charts.senseRadar.data.datasets[0].data = values;
+  charts.senseRadar.update();
+}
+
+function updateErrorChart(toolGuard) {
+  if (!toolGuard) return;
+  const history = toolGuard.history || [];
+  const dayErrors = {};
+  const dayTotal = {};
+  history.forEach(entry => {
+    const date = (entry.timestamp || '').slice(0, 10);
+    if (date) {
+      dayTotal[date] = (dayTotal[date] || 0) + 1;
+      if (entry.status === 'blocked' || entry.status === 'halted') {
+        dayErrors[date] = (dayErrors[date] || 0) + 1;
+      }
+    }
+  });
+  const sortedDays = Object.keys(dayTotal).sort().slice(-14);
+  const errorRates = sortedDays.map(d => {
+    const total = dayTotal[d] || 1;
+    const errors = dayErrors[d] || 0;
+    return (errors / total * 100).toFixed(1);
+  });
+  charts.error.data.labels = sortedDays.map(d => d.slice(5));
+  charts.error.data.datasets[0].data = errorRates;
+  charts.error.update();
+}
+
+function updateEventPie(timeline) {
+  if (!timeline) return;
+  const entries = timeline.entries || [];
+  const typeCounts = {};
+  entries.forEach(entry => {
+    const type = entry.event_type || 'unknown';
+    typeCounts[type] = (typeCounts[type] || 0) + 1;
+  });
+  const sorted = Object.entries(typeCounts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  charts.eventPie.data.labels = sorted.map(([type]) => type);
+  charts.eventPie.data.datasets[0].data = sorted.map(([, count]) => count);
+  charts.eventPie.update();
+}
+
+// ── Update Tool Guard Detail ──
+function updateToolGuardDetail(toolGuard) {
+  const container = document.getElementById('tool-guard-detail');
+  const badge = document.getElementById('tool-guard-badge');
+  if (!toolGuard) {
+    container.innerHTML = '<div style="color:var(--phx-overlay0)">无数据</div>';
+    return;
+  }
+
+  const summary = toolGuard.summary || {};
+  const alerts = toolGuard.alerts || {};
+  const history = toolGuard.history || [];
+
+  const hasAlerts = Object.keys(alerts.exact_failures || {}).length > 0 ||
+                    Object.keys(alerts.tool_failures || {}).length > 0;
+  badge.textContent = hasAlerts ? '⚠️ 告警' : '正常';
+  badge.style.background = hasAlerts ? 'rgba(243,139,168,0.15)' : 'rgba(166,227,161,0.15)';
+  badge.style.color = hasAlerts ? 'var(--phx-red)' : 'var(--phx-green)';
+
+  const toolCounts = {};
+  const toolErrors = {};
+  history.forEach(e => {
+    const t = e.tool || 'unknown';
+    toolCounts[t] = (toolCounts[t] || 0) + 1;
+    if (e.is_error) toolErrors[t] = (toolErrors[t] || 0) + 1;
+  });
+  const sortedTools = Object.entries(toolCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const recentDecisions = history.slice(-10).reverse();
+
+  container.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">
+      <div style="padding:8px;background:var(--phx-crust);border-radius:6px;text-align:center">
+        <div style="font-size:9px;color:var(--phx-overlay0)">观测</div>
+        <div style="font-weight:600;color:var(--phx-lavender);font-family:var(--font-mono)">${summary.total_observed || 0}</div>
+      </div>
+      <div style="padding:8px;background:var(--phx-crust);border-radius:6px;text-align:center">
+        <div style="font-size:9px;color:var(--phx-overlay0)">警告</div>
+        <div style="font-weight:600;color:var(--phx-yellow);font-family:var(--font-mono)">${summary.total_warned || 0}</div>
+      </div>
+      <div style="padding:8px;background:var(--phx-crust);border-radius:6px;text-align:center">
+        <div style="font-size:9px;color:var(--phx-overlay0)">阻断</div>
+        <div style="font-weight:600;color:var(--phx-red);font-family:var(--font-mono)">${summary.total_blocked || 0}</div>
+      </div>
+    </div>
+    <div style="margin-bottom:8px">
+      <div style="font-size:10px;color:var(--phx-overlay0);margin-bottom:4px">工具调用分布 (最近 500)</div>
+      ${sortedTools.map(([tool, count]) => {
+        const err = toolErrors[tool] || 0;
+        const pct = ((count / history.length) * 100).toFixed(0);
+        return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+          <span style="width:60px;font-size:10px;color:var(--phx-text)">${tool}</span>
+          <div style="flex:1;height:6px;background:var(--phx-crust);border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:${pct}%;background:${err > 0 ? 'var(--phx-red)' : 'var(--phx-lavender)'};border-radius:3px"></div>
+          </div>
+          <span style="font-size:9px;color:var(--phx-overlay0);width:30px;text-align:right">${count}</span>
+          ${err > 0 ? `<span style="font-size:8px;color:var(--phx-red)">(${err}错)</span>` : ''}
+        </div>`;
+      }).join('')}
+    </div>
+    <div>
+      <div style="font-size:10px;color:var(--phx-overlay0);margin-bottom:4px">最近调用</div>
+      ${recentDecisions.map(e => {
+        const time = (e.timestamp || '').slice(11, 19);
+        const color = e.decision === 'allow' ? 'var(--phx-green)' : e.decision === 'warn' ? 'var(--phx-yellow)' : 'var(--phx-red)';
+        return `<div style="display:flex;gap:6px;font-size:10px;margin-bottom:2px">
+          <span style="font-family:var(--font-mono);color:var(--phx-overlay0);width:55px">${time}</span>
+          <span style="color:var(--phx-text);width:45px">${e.tool || ''}</span>
+          <span style="color:${color}">${e.decision || ''}</span>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+function formatNumber(num) {
+  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+  return num.toString();
+}
+
+// ── Update Model Config ──
+function updateModelConfig(models) {
+  const configEl = document.getElementById('model-config');
+  if (!models) {
+    configEl.innerHTML = '<div style="color:var(--phx-overlay0)">无数据</div>';
+    return;
+  }
+
+  const current = models.current || {};
+  const env = models.env_vars || {};
+  const baseUrl = current.base_url || '';
+  let provider = '未知';
+  let providerColor = 'var(--phx-overlay0)';
+  if (baseUrl.includes('xiaomimimo')) { provider = 'MiMo (小米)'; providerColor = 'var(--phx-lavender)'; }
+  else if (baseUrl.includes('deepseek')) { provider = 'DeepSeek'; providerColor = 'var(--phx-sky)'; }
+  else if (baseUrl.includes('anthropic')) { provider = 'Anthropic'; providerColor = 'var(--phx-mauve)'; }
+  else if (baseUrl.includes('openai')) { provider = 'OpenAI'; providerColor = 'var(--phx-green)'; }
+  else if (baseUrl.includes('127.0.0.1') || baseUrl.includes('localhost')) { provider = '本地代理'; providerColor = 'var(--phx-yellow)'; }
+
+  configEl.innerHTML = `
+    <div style="margin-bottom:10px;padding:12px;background:var(--phx-crust);border-radius:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div>
+          <div style="font-size:9px;color:var(--phx-overlay0)">模型</div>
+          <div style="font-weight:600;font-size:14px;color:var(--phx-lavender);font-family:var(--font-mono)">${current.model || '未配置'}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:9px;color:var(--phx-overlay0)">服务商</div>
+          <div style="font-weight:600;color:${providerColor}">${provider}</div>
+        </div>
+      </div>
+      <div style="font-size:9px;color:var(--phx-overlay0);word-break:break-all;font-family:var(--font-mono)">${baseUrl || '未配置'}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:8px">
+      <div style="padding:6px;background:var(--phx-crust);border-radius:6px">
+        <div style="font-size:8px;color:var(--phx-overlay0)">Haiku</div>
+        <div style="font-size:11px;color:var(--phx-text);font-family:var(--font-mono)">${current.haiku || '-'}</div>
+      </div>
+      <div style="padding:6px;background:var(--phx-crust);border-radius:6px">
+        <div style="font-size:8px;color:var(--phx-overlay0)">Sonnet</div>
+        <div style="font-size:11px;color:var(--phx-text);font-family:var(--font-mono)">${current.sonnet || '-'}</div>
+      </div>
+      <div style="padding:6px;background:var(--phx-crust);border-radius:6px">
+        <div style="font-size:8px;color:var(--phx-overlay0)">Opus</div>
+        <div style="font-size:11px;color:var(--phx-text);font-family:var(--font-mono)">${current.opus || '-'}</div>
+      </div>
+      <div style="padding:6px;background:var(--phx-crust);border-radius:6px">
+        <div style="font-size:8px;color:var(--phx-overlay0)">Effort</div>
+        <div style="font-size:11px;color:var(--phx-text);font-family:var(--font-mono)">${current.effort_level || '-'}</div>
+      </div>
+    </div>
+    <div style="font-size:9px;color:var(--phx-overlay0)">
+      <div>Auth: <span style="color:var(--phx-text);font-family:var(--font-mono)">${env.ANTHROPIC_AUTH_TOKEN ? env.ANTHROPIC_AUTH_TOKEN.slice(0,12) + '...' : '未配置'}</span></div>
+    </div>
+  `;
+}
+
+// ── Update UI Components ──
+function updateStats(toolGuard, timeline, status) {
+  const history = toolGuard?.history || [];
+  const entries = timeline?.entries || [];
+  const summary = toolGuard?.summary || {};
+
+  const totalTools = summary.total_observed || history.length;
+  document.getElementById('stat-tools').textContent = totalTools.toLocaleString();
+  document.getElementById('stat-tools-trend').textContent = '累计调用';
+
+  const sessions = entries.filter(e => e.event_type === 'session_end').length;
+  document.getElementById('stat-sessions').textContent = sessions;
+  document.getElementById('stat-sessions-trend').textContent = '会话次数';
+
+  const warned = summary.total_warned || 0;
+  const blocked = summary.total_blocked || 0;
+  const halted = summary.total_halted || 0;
+  const errors = history.filter(e => e.is_error === true).length;
+
+  document.getElementById('stat-warned').textContent = warned;
+  document.getElementById('stat-warned-trend').textContent = warned > 0 ? '需要关注' : '正常';
+  document.getElementById('stat-warned-trend').className = 'trend ' + (warned > 10 ? 'down' : 'up');
+
+  document.getElementById('stat-blocked').textContent = blocked;
+  document.getElementById('stat-blocked-trend').textContent = blocked > 0 ? '已阻断' : '正常';
+  document.getElementById('stat-blocked-trend').className = 'trend ' + (blocked > 0 ? 'down' : 'up');
+
+  document.getElementById('stat-errors').textContent = errors;
+  document.getElementById('stat-errors-trend').textContent = '工具执行错误';
+  document.getElementById('stat-errors-trend').className = 'trend ' + (errors > 5 ? 'down' : 'up');
+
+  document.getElementById('stat-halted').textContent = halted;
+
+  const successRate = totalTools > 0 ? (((totalTools - errors) / totalTools) * 100).toFixed(1) : '-';
+  document.getElementById('stat-success-rate').textContent = successRate + '%';
+
+  const frameworks = status?.evolution?.active_frameworks || 0;
+  document.getElementById('stat-frameworks').textContent = frameworks;
+  document.getElementById('stat-frameworks-trend').textContent = '活跃框架';
+}
+
+function updateSenseGrid(senses) {
+  const grid = document.getElementById('sense-grid');
+  const senseData = senses?.senses || {};
+  const senseConfig = [
+    { key: 'o2', icon: '💨', name: 'O₂ 压力' },
+    { key: 'nociception', icon: '🩹', name: '痛觉' },
+    { key: 'drift', icon: '🧭', name: '漂移' },
+    { key: 'echo', icon: '🔊', name: '回声' },
+    { key: 'chronos', icon: '⏱️', name: '时间' },
+    { key: 'spatial', icon: '📐', name: '空间' },
+    { key: 'vestibular', icon: '⚖️', name: '平衡' }
+  ];
+  grid.innerHTML = senseConfig.map(s => {
+    const sense = senseData[s.key] || {};
+    let statusClass = 'ok', statusText = '正常';
+    if (sense.trend === 'alert') { statusClass = 'error'; statusText = '警报'; }
+    else if (sense.trend === 'warn') { statusClass = 'warn'; statusText = '警告'; }
+    return `
+      <div class="sense-item">
+        <div class="icon">${s.icon}</div>
+        <div class="name">${s.name}</div>
+        <div class="status ${statusClass}">${statusText}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function updateTimeline(timeline) {
+  const container = document.getElementById('timeline-list');
+  const entries = timeline?.entries || [];
+  document.getElementById('timeline-count').textContent = `${entries.length} 条`;
+  container.innerHTML = entries.slice(0, 20).map(entry => {
+    const time = (entry.timestamp || '').slice(11, 19);
+    const type = (entry.event_type || '?').slice(0, 12);
+    const desc = (entry.summary || '').slice(0, 60);
+    return `
+      <div class="timeline-entry">
+        <span class="timeline-time">${time}</span>
+        <span class="timeline-type">${type}</span>
+        <span class="timeline-desc">${desc}</span>
+      </div>
+    `;
+  }).join('') || '<div style="text-align:center;color:var(--phx-overlay0);padding:20px">暂无活动记录</div>';
+}
+
+function updateToolGuard(toolGuard) {
+  const history = toolGuard?.history || [];
+  const summary = toolGuard?.summary || {};
+
+  const statusEl = document.getElementById('guard-status');
+  const blocked = summary.total_blocked || 0;
+  const halted = summary.total_halted || 0;
+
+  if (halted > 0) {
+    statusEl.textContent = '有阻断';
+    statusEl.style.background = 'rgba(243,139,168,0.12)';
+    statusEl.style.color = 'var(--phx-red)';
+  } else if (blocked > 0) {
+    statusEl.textContent = '有警告';
+    statusEl.style.background = 'rgba(249,226,175,0.12)';
+    statusEl.style.color = 'var(--phx-yellow)';
+  } else {
+    statusEl.textContent = '正常';
+    statusEl.style.background = 'rgba(166,227,161,0.12)';
+    statusEl.style.color = 'var(--phx-green)';
+  }
+
+  const warnings = history.filter(e => e.status === 'warn' || e.status === 'blocked').slice(-5);
+  document.getElementById('guard-warnings').innerHTML = warnings.length > 0
+    ? warnings.map(w => `
+      <div style="padding:6px 8px;margin:2px 0;background:rgba(243,139,168,0.05);border-radius:4px;border-left:2px solid var(--phx-red)">
+        ${w.tool || '?'} - ${w.status}
+      </div>
+    `).join('')
+    : '<div style="color:var(--phx-overlay0)">无警告</div>';
+
+  const toolHealth = {};
+  history.forEach(entry => {
+    const tool = entry.tool || 'unknown';
+    if (!toolHealth[tool]) toolHealth[tool] = { total: 0, errors: 0 };
+    toolHealth[tool].total++;
+    if (entry.status === 'blocked' || entry.status === 'halted') toolHealth[tool].errors++;
+  });
+
+  const healthHTML = Object.entries(toolHealth)
+    .sort((a, b) => b[1].total - a[1].total).slice(0, 5)
+    .map(([tool, stats]) => {
+      const errorRate = (stats.errors / stats.total * 100).toFixed(0);
+      const color = errorRate > 10 ? 'var(--phx-red)' : errorRate > 5 ? 'var(--phx-yellow)' : 'var(--phx-green)';
+      return `<div style="display:flex;justify-content:space-between;padding:3px 0">
+        <span>${tool}</span><span style="color:${color}">${errorRate}% 错误</span>
+      </div>`;
+    }).join('');
+  document.getElementById('guard-health').innerHTML = healthHTML || '<div style="color:var(--phx-overlay0)">无数据</div>';
+
+  document.getElementById('guard-stats').innerHTML = `
+    <div style="margin-bottom:4px">总观测: <strong style="font-family:var(--font-mono)">${summary.total_observed || 0}</strong></div>
+    <div style="margin-bottom:4px">警告: <strong style="color:var(--phx-yellow);font-family:var(--font-mono)">${summary.total_warned || 0}</strong></div>
+    <div style="margin-bottom:4px">阻断: <strong style="color:var(--phx-red);font-family:var(--font-mono)">${summary.total_blocked || 0}</strong></div>
+    <div>中止: <strong style="color:var(--phx-red);font-family:var(--font-mono)">${summary.total_halted || 0}</strong></div>
+  `;
+}
+
+// ── Update Persona ──
+function updatePersona(persona) {
+  const contentEl = document.getElementById('persona-content');
+  const statusEl = document.getElementById('persona-status');
+
+  if (!persona || !persona.available) {
+    contentEl.innerHTML = `
+      <div style="text-align:center;color:var(--phx-overlay0);padding:20px">
+        <div style="font-size:1.5rem;margin-bottom:8px">🧬</div>
+        <div>画像尚未激活</div>
+        <div style="font-size:11px;margin-top:4px">需要更多对话来学习你的偏好（约 10 条消息）</div>
+      </div>
+    `;
+    statusEl.textContent = '未激活';
+    statusEl.style.color = 'var(--phx-overlay0)';
+    return;
+  }
+
+  statusEl.textContent = '已激活';
+  statusEl.style.color = 'var(--phx-green)';
+
+  const personaText = persona.persona || '';
+  const drift = persona.drift || {};
+  const grains = persona.total_grains || 0;
+
+  const layers = [];
+  const lines = personaText.split('\n');
+  let currentLayer = null;
+  let currentContent = [];
+  lines.forEach(line => {
+    if (line.startsWith('## ')) {
+      if (currentLayer) layers.push({ title: currentLayer, content: currentContent.join('\n') });
+      currentLayer = line.replace('## ', '').trim();
+      currentContent = [];
+    } else if (line.trim()) {
+      currentContent.push(line);
+    }
+  });
+  if (currentLayer) layers.push({ title: currentLayer, content: currentContent.join('\n') });
+
+  let html = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:10px;background:var(--phx-crust);border-radius:8px">
+      <div>
+        <span style="font-size:11px;color:var(--phx-overlay0)">已学习</span>
+        <span style="font-size:18px;font-weight:700;color:var(--phx-lavender);margin-left:6px;font-family:var(--font-mono)">${grains}</span>
+        <span style="font-size:11px;color:var(--phx-overlay0);margin-left:4px">条对话</span>
+      </div>
+      <div>
+        <span style="font-size:11px;color:var(--phx-overlay0)">决策倾向:</span>
+        <span style="font-size:13px;font-weight:600;color:var(--phx-blue);margin-left:4px">${drift.direction || '未知'}</span>
+      </div>
+    </div>
+  `;
+
+  if (layers.length > 0) {
+    html += layers.slice(0, 4).map(layer => `
+      <div class="layer">
+        <div class="layer-title">${layer.title}</div>
+        <div class="layer-content">${layer.content.slice(0, 200)}${layer.content.length > 200 ? '...' : ''}</div>
+      </div>
+    `).join('');
+  } else {
+    html += `<div style="font-size:11px;color:var(--phx-overlay1);white-space:pre-wrap;max-height:200px;overflow-y:auto">${personaText.slice(0, 500)}${personaText.length > 500 ? '...' : ''}</div>`;
+  }
+  contentEl.innerHTML = html;
+}
+
+// ── Update Team Members ──
+function updateTeamMembers(users, personaAll) {
+  const gridEl = document.getElementById('team-grid');
+  const countEl = document.getElementById('team-count');
+
+  if (!users || !users.users) {
+    gridEl.innerHTML = '<div style="text-align:center;color:var(--phx-overlay0);padding:20px;grid-column:1/-1">加载中...</div>';
+    return;
+  }
+
+  const members = users.users;
+  countEl.textContent = `${members.length} 人`;
+  const personas = personaAll?.personas || {};
+  const canViewAll = personaAll?.can_view_all || false;
+
+  gridEl.innerHTML = members.map(member => {
+    const tierClass = member.tier || 'user';
+    const personaData = personas[member.id] || {};
+    const personaActive = member.persona_status === 'active';
+    const privacyBlocked = personaData.privacy_blocked || false;
+
+    let personaPreview = '';
+    if (privacyBlocked) {
+      personaPreview = `<div class="persona-preview"><div style="font-size:10px;color:var(--phx-overlay0);text-align:center">🔒 仅创始人可查看其他成员画像</div></div>`;
+    } else if (personaActive && personaData.available) {
+      const personaText = personaData.persona || '';
+      personaPreview = `<div class="persona-preview"><div style="font-size:10px;color:var(--phx-lavender);margin-bottom:4px">画像预览</div>${personaText.slice(0, 150)}${personaText.length > 150 ? '...' : ''}</div>`;
+    } else if (!personaActive) {
+      personaPreview = `<div class="persona-preview"><div style="font-size:10px;color:var(--phx-overlay0);text-align:center">画像未激活</div></div>`;
+    }
+
+    return `
+      <div class="member-card">
+        <div class="member-header">
+          <div class="member-name">
+            <span>${member.tier_icon}</span>
+            <span>${member.name}</span>
+            ${member.id === 'holyty-founder' ? '<span style="font-size:9px;color:var(--phx-lavender)">(你)</span>' : ''}
+          </div>
+          <span class="member-tier ${tierClass}">${member.tier_label}</span>
+        </div>
+        <div style="font-size:11px;color:var(--phx-overlay0);margin-bottom:8px">${member.description || ''}</div>
+        <div class="member-stats">
+          <div class="member-stat"><strong style="font-family:var(--font-mono)">${member.total_grains || 0}</strong> 条对话</div>
+          <div class="member-stat">画像: <strong style="color:${personaActive ? 'var(--phx-green)' : 'var(--phx-overlay0)'}">${personaActive ? '已激活' : '未激活'}</strong></div>
+        </div>
+        ${personaPreview}
+      </div>
+    `;
+  }).join('');
+}
+
+// ── Rebuild Persona ──
+async function rebuildPersona() {
+  if (!confirm('确定要强制重建画像吗？这将分析所有对话数据。')) return;
+  try {
+    const result = await fetch(API_BASE + '/api/persona/rebuild', { method: 'POST' });
+    const data = await result.json();
+    if (data.status === 'ok') {
+      toast('画像重建完成，共分析 ' + data.grains + ' 条对话');
+      load();
+    } else {
+      toast('重建失败: ' + (data.message || '未知错误'), false);
+    }
+  } catch (e) {
+    toast('重建失败: ' + e.message, false);
+  }
+}
+
+// ── Main Load ──
+async function load() {
+  try {
+    setConn(false, '加载数据中...');
+
+    const [toolGuard, timeline, status, senses, persona, users, personaAll, models] = await Promise.all([
+      fetchJSON('/api/tool-guard'),
+      fetchJSON('/api/timeline?limit=200'),
+      fetchJSON('/api/status'),
+      fetchJSON('/api/status'),
+      fetchJSON('/api/persona'),
+      fetchJSON('/api/users'),
+      fetchJSON('/api/persona/all?user_id=holyty-founder&tier=founder'),
+      fetchJSON('/api/models')
+    ]);
+
+    DATA.toolGuard = toolGuard;
+    DATA.timeline = timeline;
+    DATA.status = status;
+    DATA.senses = senses;
+    DATA.persona = persona;
+    DATA.users = users;
+    DATA.personaAll = personaAll;
+    DATA.models = models;
+
+    updateToolUsageChart(toolGuard);
+    updateActivityChart(timeline);
+    updateSenseRadar(senses);
+    updateErrorChart(toolGuard);
+    updateEventPie(timeline);
+
+    updateStats(toolGuard, timeline, status);
+    updateSenseGrid(senses);
+    updateTimeline(timeline);
+    updateToolGuard(toolGuard);
+    updateToolGuardDetail(toolGuard);
+    updateModelConfig(models);
+
+    updatePersona(persona);
+    updateTeamMembers(users, personaAll);
+
+    setConn(true, 'PHOENIX 引擎已连接');
+  } catch (e) {
+    console.error('Load error:', e);
+    setConn(false, '加载失败: ' + e.message);
+  }
+}
+
+// ── Initialize ──
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    initCharts();
+    load();
+    setInterval(load, 30000);
+  } catch (e) {
+    console.error('Initialization error:', e);
+    setConn(false, '初始化错误: ' + e.message);
+  }
+});
+</script>
+</body>
+</html>
