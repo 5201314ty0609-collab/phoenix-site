@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PHOENIX · Eight Senses</title>
+<title>鲤鱼 · Eight Senses</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
@@ -37,7 +37,7 @@
 <body>
 <div id="grain"></div>
 <div id="title-area">
-  <h1>PHOENIX<br>Eight Senses</h1>
+  <h1>鲤鱼<br>Eight Senses</h1>
   <p>八感元认知 · 实时可视化</p>
   <div class="dial-indicator">
     <div class="dial-badge">VAR <span id="dv">7</span></div>
@@ -74,7 +74,7 @@
 </div>
 <script>
 // ══════════════════════════════════════════════════════════════════
-//  PHOENIX Eight Senses · Design Dial-driven Visualization
+//  鲤鱼 Eight Senses · Design Dial-driven Visualization
 //  Palette: Catppuccin Mocha · Fonts: Outfit + Inter + JetBrains Mono
 //  Dial Settings: VAR=7 MOT=6 DEN=5
 // ══════════════════════════════════════════════════════════════════
@@ -143,7 +143,7 @@ function mouseMoved(){
   }
   // Also check center
   if(!hovered&&dist(mouseX,mouseY,cx,cy)<bubbleR*1.4){
-    hovered={id:'core',color:C.mauve,name:'Core',desc:'PHOENIX 自进化核心',icon:'🔥'};
+    hovered={id:'core',color:C.mauve,name:'Core',desc:'鲤鱼 自进化核心',icon:'🔥'};
   }
 }
 function mousePressed(){
@@ -408,7 +408,7 @@ function renderAestheticBubble(x,y,r,t,col,isH){
   pop();
 }
 
-// ── Center: PHOENIX Core ───────────────────────────────────────────
+// ── Center: 鲤鱼 Core ───────────────────────────────────────────
 function drawCenter(t){
   const isH=hovered&&hovered.id==='core';
   const r=bubbleR*1.2;
@@ -422,7 +422,7 @@ function drawCenter(t){
   noFill();stroke(cola(C.mauve,isH?55:30));strokeWeight(isH?2:1.2);
   circle(cx,cy,r*2.3*(0.82+0.18*sin(t*0.8)));
   fill(cola(C.mauve,isH?240:170));noStroke();
-  textFont('Outfit');textSize(isH?17:14);textStyle(BOLD);text('PHOENIX',cx,cy-16);
+  textFont('Outfit');textSize(isH?17:14);textStyle(BOLD);text('鲤鱼',cx,cy-16);
   textFont('Inter');textSize(isH?10:8);textStyle(NORMAL);
   fill(cola(C.mauve,isH?170:110));text('Self-Evolving Core',cx,cy+10);
   for(let i=0;i<8;i++){

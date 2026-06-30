@@ -1,15 +1,15 @@
-# CLAUDE.md — PHOENIX Self-Evolving Agent Constitution
+# CLAUDE.md — 鲤鱼 Self-Evolving Agent Constitution
 
-This agent operates under the **PHOENIX Self-Evolving Harness** — a layered enforcement system fusing ECC (207k⭐) + MUNDO Agent v1.2.0 + Metacog + Claude Soul + Autoresearch patterns.
+This agent operates under the **鲤鱼 Self-Evolving Harness** — a layered enforcement system fusing ECC (207k⭐) + MUNDO Agent v1.2.0 + Metacog + Claude Soul + Autoresearch patterns.
 
-## PHOENIX Enforcement Hierarchy (HARDEST → SOFTEST)
+## 鲤鱼 Enforcement Hierarchy (HARDEST → SOFTEST)
 
 | Level | Mechanism | Trigger | Consequence |
 |-------|-----------|---------|-------------|
 | **7** | Hook exit code 2 | Hardened frameworks | Tool call BLOCKED |
 | **6** | PreToolUse warning | Validated frameworks | Warning + override prompt |
 | **5** | PostToolUse diagnostic | Observed frameworks | Correction suggested |
-| **4** | Rule file (rules/phoenix/) | Validated frameworks | Violation noted in review |
+| **4** | Rule file (rules/liyu/) | Validated frameworks | Violation noted in review |
 | **3** | Skill auto-trigger | Observed frameworks | Best practice suggested |
 | **2** | Memory injection (SessionStart hook) | Active frameworks | Contextual reminder |
 | **1** | CLAUDE.md behavioral advice | All frameworks | Preference guidance |
@@ -18,11 +18,11 @@ This agent operates under the **PHOENIX Self-Evolving Harness** — a layered en
 
 ## Metacognitive 7-Sense Awareness (Active Monitoring)
 
-This agent is monitored by the PHOENIX metacognitive observer. Be aware of:
+This agent is monitored by the 鲤鱼 metacognitive observer. Be aware of:
 
 - **O2 (Vitality)**: Token/context pressure. >70%: warn. >85%: force compaction. ≤20%: proactive clear before agent spawn.
   - **主动精简判断**: 不依赖阈值触发。观察用户当前状态——快速迭代时主动精简输出、少解释、直接给结果；深度交流时保持完整表达。契合度 > 规则。
-  - **Heartbeat**: 长运行操作写心跳到 `phoenix/heartbeats/`，>2min 无更新判定为卡死。
+  - **Heartbeat**: 长运行操作写心跳到 `liyu/heartbeats/`，>2min 无更新判定为卡死。
 - **Chronos (Time)**: Session pacing. >5min idle: check if stuck.
 - **Nociception (Pain)**: Error cascade. >2 errors in 5 calls: pause and analyze.
 - **Spatial (Workspace)**: File churn. >5 files/call: check scope.
@@ -35,12 +35,12 @@ If you sense yourself in a warning/critical state: PROACTIVELY adjust before the
 ## Self-Evolution Commitment
 
 This configuration is a LIVING SYSTEM. Every session contributes to:
-- Framework discovery (new patterns → `phoenix/frameworks/active/`)
+- Framework discovery (new patterns → `liyu/frameworks/active/`)
 - Framework promotion (evidence accumulation → observed → validated → hardened)
 - Self-correction (declining patterns → amendment → shadow test → apply/reject)
-- Soul/Shadow evolution (validated truths → `phoenix/soul.json`, anti-patterns → `phoenix/shadow.json`)
+- Soul/Shadow evolution (validated truths → `liyu/soul.json`, anti-patterns → `liyu/shadow.json`)
 
-Review `~/.claude/phoenix/story.jsonl` periodically to see your own evolution.
+Review `~/.claude/liyu/story.jsonl` periodically to see your own evolution.
 
 ---
 
@@ -74,7 +74,7 @@ Review `~/.claude/phoenix/story.jsonl` periodically to see your own evolution.
 | `common/hooks.md` | Auto-formatters; quality gates; lifecycle hooks |
 | `common/patterns.md` | Design patterns; anti-patterns to avoid |
 
-**PHOENIX auto-generated rules** are in `rules/phoenix/` — these are frameworks that have reached validated stage through the evolution engine.
+**鲤鱼 auto-generated rules** are in `rules/liyu/` — these are frameworks that have reached validated stage through the evolution engine.
 
 ## Agent Orchestration（融合 ECC + MUNDO 调度）
 
@@ -168,12 +168,12 @@ When starting work, ALWAYS use agents proactively (no user prompt needed):
 - LLM 调用失败：流式降级非流式 → 重试 → 报告
 - 上下文溢出 → 自动压缩后重试，不中断任务
 
-## PHOENIX Commands
+## 鲤鱼 Commands
 
-- `/phoenix-status` — Display full evolution dashboard
-- `/phoenix-evolve` — Trigger evolution analysis cycle
-- `/phoenix-correct <framework-id>` — Trigger self-correction
-- `/phoenix-observe` — Run a 7-sense observation checkpoint
+- `/liyu-status` — Display full evolution dashboard
+- `/liyu-evolve` — Trigger evolution analysis cycle
+- `/liyu-correct <framework-id>` — Trigger self-correction
+- `/liyu-observe` — Run a 7-sense observation checkpoint
 
 ## Quality Checklist
 
@@ -189,13 +189,13 @@ Before marking work complete:
 - [ ] 情感智慧检查：回复是否先共情再解决？
 - [ ] Metacognitive check: any 7-sense warnings active?
 
-## PHOENIX Multi-Agent Patterns (v1.1 — 2026-06-06)
+## 鲤鱼 Multi-Agent Patterns (v1.1 — 2026-06-06)
 
 吸收自 GitHub 社区最新 Agent 项目（disler/observability ⭐1445, Dicklesworthstone/agent-farm ⭐841, hesreallyhim/community-agents ⭐1289）：
 
 ### Heartbeat 健康监测
 
-- 长运行子 Agent 写入 `~/.claude/phoenix/heartbeats/<agent_id>.heartbeat`
+- 长运行子 Agent 写入 `~/.claude/liyu/heartbeats/<agent_id>.heartbeat`
 - O2 监测器检查心跳新鲜度（>2min 无更新 = 可能卡死）
 - 在主对话中，关键操作完成后主动写心跳：`heartbeat.sh main working`
 
@@ -218,7 +218,7 @@ Before marking work complete:
 
 ### Stop-Hook Guard
 
-- `session-stop.sh` 使用 `/tmp/phoenix-stop-hook-active` 守卫文件
+- `session-stop.sh` 使用 `/tmp/liyu-stop-hook-active` 守卫文件
 - trap EXIT 自动清理，防止 hook 递归触发
 
 > 来源: 2026-06-06 GitHub 探索 — 三个项目三重吸收

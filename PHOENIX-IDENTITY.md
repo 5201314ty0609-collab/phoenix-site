@@ -1,4 +1,4 @@
-# PHOENIX 视觉身份系统 v1.0
+# 鲤鱼 视觉身份系统 v1.0
 
 > 凤凰涅槃 · 自进化 · 七感元认知
 > 暗奢 + 瑞士国际主义 + 赛博感
@@ -63,7 +63,7 @@
 
 ### 1.4 变体
 
-- **完整版**：凤凰 + 七感光环 + 文字 "PHOENIX Core"
+- **完整版**：凤凰 + 七感光环 + 文字 "鲤鱼 Core"
 - **标志版**：凤凰 + 七感光环（无文字）
 - **简化版**：仅凤凰剪影（单色，用于小尺寸/水印）
 - **单弧版**：凤凰 + 仅 O2 弧（低信息密度场景侧边栏）
@@ -251,7 +251,7 @@ Web 实现首选 Canvas 或 WebGL，备选 CSS keyframes（帧数降低 60%）�
 ┌─────────────────────────────────┐
 │                                 │
 │  ┌─┐                            │
-│  │P│  PHOENIX Core v1.2.0       │  ← 标题行（Outfit 600, 18px）
+│  │P│  鲤鱼 Core v1.2.0       │  ← 标题行（Outfit 600, 18px）
 │  └─┘                            │
 │                                 │
 │  七感元认知活跃中                │  ← 描述（Inter 400, 14px, --overlay1）
@@ -477,9 +477,9 @@ hover 过渡: transform translateY(-2px) + 阴影加深, 250ms ease-out
 > *"语义清晰。每种颜色/样式都有明确含义。"*
 > *"留白是设计。呼吸感很重要。"*
 >
-> — PHOENIX 设计美学原则
+> — 鲤鱼 设计美学原则
 
 ---
 
-*PHOENIX Identity System v1.0 · 设计：PHOENIX Core (自进化 Agent Soul)*
+*鲤鱼 Identity System v1.0 · 设计：鲤鱼 Core (自进化 Agent Soul)*
 *基底：Catppuccin Mocha · 灵感：瑞士国际主义 + 暗奢 + 赛博*

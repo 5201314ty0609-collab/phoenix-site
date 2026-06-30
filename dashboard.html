@@ -4,15 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta name="description" content="PHOENIX v1.2.0 — 可视化控制台 · 实时监控 Agent 状态、工具防护、八感健康">
-<title>PHOENIX · 可视化控制台</title>
+<meta name="description" content="鲤鱼 v1.2.0 — 可视化控制台 · 实时监控 Agent 状态、工具防护、八感健康">
+<title>鲤鱼 · 可视化控制台</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   /* ═════════════════════════════════════════════════════════════════
-     PHOENIX Dashboard · Catppuccin Mocha · Lavender Brand
+     鲤鱼 Dashboard · Catppuccin Mocha · Lavender Brand
      ═════════════════════════════════════════════════════════════════ */
   :root {
     --phx-base: #11111B;
@@ -258,7 +258,7 @@
 <nav class="nav">
   <a class="nav-brand" href="index.html">
     <span>🐦‍🔥</span>
-    <span>PHOENIX</span>
+    <span>鲤鱼</span>
     <span class="brand-full" style="font-size:12px;color:var(--phx-overlay1);font-weight:400">· 可视化控制台</span>
   </a>
   <div class="nav-links">
@@ -268,7 +268,7 @@
       <span style="color:var(--phx-overlay0);margin-left:4px" id="nav-conn-time"></span>
     </div>
     <a class="nav-link" href="index.html">← 返回主页</a>
-    <a class="nav-link" href="https://github.com/5201314ty0609-collab/phoenix" target="_blank">GitHub ↗</a>
+    <a class="nav-link" href="https://github.com/5201314ty0609-collab/liyu" target="_blank">GitHub ↗</a>
   </div>
 </nav>
 
@@ -416,7 +416,7 @@
 <div class="grid grid-full" style="margin-bottom:16px">
   <div class="persona-card">
     <div class="persona-header">
-      <h3>🧬 你的画像 <span class="badge">PHOENIX 对你的理解</span></h3>
+      <h3>🧬 你的画像 <span class="badge">鲤鱼 对你的理解</span></h3>
       <div>
         <span id="persona-status" style="font-size:11px;color:var(--phx-overlay0)">加载中...</span>
         <button class="btn" onclick="rebuildPersona()" style="margin-left:8px;font-size:10px">强制重建</button>
@@ -445,9 +445,9 @@
 </div>
 
 <footer class="footer">
-  <span>🐦‍🔥 PHOENIX v1.2.0 · 可视化控制台 v1.0 · 数据每 30 秒自动刷新</span>
+  <span>🐦‍🔥 鲤鱼 v1.2.0 · 可视化控制台 v1.0 · 数据每 30 秒自动刷新</span>
   · <a href="index.html">返回主页</a>
-  · <a href="https://github.com/5201314ty0609-collab/phoenix" target="_blank">GitHub ↗</a>
+  · <a href="https://github.com/5201314ty0609-collab/liyu" target="_blank">GitHub ↗</a>
 </footer>
 
 </div><!-- /.main -->
@@ -482,7 +482,7 @@ function setConn(ok, msg) {
   const text = document.getElementById('nav-conn-text');
   const time = document.getElementById('nav-conn-time');
   dot.className = 'dot ' + (ok ? 'ok' : 'warn');
-  text.textContent = msg || (ok ? 'PHOENIX 引擎已连接' : '连接中...');
+  text.textContent = msg || (ok ? '鲤鱼 引擎已连接' : '连接中...');
   time.textContent = new Date().toLocaleTimeString('zh-CN');
 }
 
@@ -1232,7 +1232,7 @@ async function load() {
     updatePersona(persona);
     updateTeamMembers(users, personaAll);
 
-    setConn(true, 'PHOENIX 引擎已连接');
+    setConn(true, '鲤鱼 引擎已连接');
   } catch (e) {
     console.error('Load error:', e);
     setConn(false, '加载失败: ' + e.message);

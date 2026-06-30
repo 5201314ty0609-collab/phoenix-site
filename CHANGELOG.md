@@ -1,4 +1,4 @@
-# PHOENIX Changelog
+# 鲤鱼 Changelog
 
 ## v1.2.0 — The Aesthetic Awakening (2026-06-08)
 
@@ -6,23 +6,23 @@
 - **8th Sense: Aesthetic** — Design taste judgment, 3-dial parameters (VARIANCE/MOTION/DENSITY), Anti-Slop enforcement
 - **Knowledge Network** — 64 nodes, 103 edges, TF-IDF semantic search, BFS traversal, auto-extraction
 - **Hermes Agent v0.16.0** — Independent runtime, 72+ skills, MCP bridge with Claude Code
-- **PHOENIX Identity System** — Catppuccin Mocha palette, Outfit+Inter+JetBrains Mono, 4px grid, dual theme
+- **鲤鱼 Identity System** — Catppuccin Mocha palette, Outfit+Inter+JetBrains Mono, 4px grid, dual theme
 - **Eight Senses Visualization** — Real-time p5js panel, interactive dials, taste-driven design
-- **Birth Narrative + ASCII Art** — Origin poem + phoenix ASCII cover
+- **Birth Narrative + ASCII Art** — Origin poem + liyu ASCII cover
 
 ### System Upgrades
 - **Self-Heal Engine v2** — 3-level escalation (observe→warn→act) from Metacog v0.5.2, inverted time-decay
 - **Session State Decay** — Cross-session concern tracking from Claude Soul v0.2.4
 - **Taste-Skill Integration** — 17 taste skills, Anti-Slop rules merged into design-quality.md
-- **Memory Bridge** — Bidirectional PHOENIX ↔ Hermes sync
-- `/phoenix-knowledge` slash command
+- **Memory Bridge** — Bidirectional 鲤鱼 ↔ Hermes sync
+- `/liyu-knowledge` slash command
 
 ---
 
 ## v1.1.0 — 2026-06-06
 
 ### 神经系统接通
-- **SessionStart Hook**: 每次会话启动自动注入 PHOENIX 身份 + 上次会话记忆
+- **SessionStart Hook**: 每次会话启动自动注入 鲤鱼 身份 + 上次会话记忆
 - **Stop Hook**: 会话结束自动写日记、更新 last-session.json、同步 macOS Notes（一天一条追加模式）
 - **Stop-hook Guard**: 防无限循环保护
 
@@ -57,5 +57,5 @@
 - Karpathy 自愈引擎
 - 七级强制执行层级
 - 记忆系统建立
-- 网站 phoenix-harness.netlify.app 上线
-- macOS 桌面启动器 PHOENIX.app
+- 网站 liyu-harness.netlify.app 上线
+- macOS 桌面启动器 鲤鱼.app

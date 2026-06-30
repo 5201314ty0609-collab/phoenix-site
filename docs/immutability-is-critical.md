@@ -1,4 +1,4 @@
-# Immutability Is Critical (PHOENIX Seed Rule)
+# Immutability Is Critical (鲤鱼 Seed Rule)
 
 > Auto-evolved rule | Stage: validated | Confidence: 95%
 > Observations: 50 | Successes: 48 | Failures: 2

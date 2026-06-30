@@ -1,11 +1,11 @@
 ---
-name: phoenix
-description: PHOENIX Self-Evolving Agent Harness — master orchestrator for continuous autonomous evolution. Fuses ECC + MUNDO + Metacog + Claude Soul + Autoresearch patterns. Triggers metacognitive monitoring, framework lifecycle management, self-correction, and enforcement hierarchy. Activated automatically at session start and periodically during sessions.
-origin: PHOENIX
+name: liyu
+description: 鲤鱼 Self-Evolving Agent Harness — master orchestrator for continuous autonomous evolution. Fuses ECC + MUNDO + Metacog + Claude Soul + Autoresearch patterns. Triggers metacognitive monitoring, framework lifecycle management, self-correction, and enforcement hierarchy. Activated automatically at session start and periodically during sessions.
+origin: 鲤鱼
 version: 1.0.0
 ---
 
-# PHOENIX — Self-Evolving Agent Harness
+# 鲤鱼 — Self-Evolving Agent Harness
 
 ## When to Use
 
@@ -15,7 +15,7 @@ This skill is **ALWAYS ACTIVE**. It operates in the background, monitoring agent
 - **Every 10 tool calls**: Triggers metacognitive 7-sense check via PostToolUse hook
 - **Session End**: Triggers evolution analysis via Stop hook (framework promotion, pattern extraction)
 - **On error spike**: Triggers nociception (pain) detection and self-correction
-- **Manual trigger**: `/phoenix-status`, `/phoenix-evolve`, `/phoenix-correct`
+- **Manual trigger**: `/liyu-status`, `/liyu-evolve`, `/liyu-correct`
 
 ## Core Architecture
 
@@ -54,7 +54,7 @@ validated  ──(50+ observations, >90% confidence)──→ hardened
 
 **At each promotion**:
 - `active → observed`: Start injecting as "suggested behavior"
-- `observed → validated`: Promote to a rule file in `rules/phoenix/`
+- `observed → validated`: Promote to a rule file in `rules/liyu/`
 - `validated → hardened`: Enforce via hook (exit code 2 on violation)
 
 ## Enforcement Hierarchy (from ContinuousClaude)
@@ -80,24 +80,24 @@ Karpathy Cycle: `measure → change → verify → keep/discard`
 5. **Verify**: Compare outcomes (old vs new behavior)
 6. **Apply or Reject**: Move to `applied/` or `rejected/`
 
-## PHOENIX Commands
+## 鲤鱼 Commands
 
-- `/phoenix-status` — Display full evolution dashboard (soul, shadow, frameworks, senses)
-- `/phoenix-evolve` — Manually trigger evolution analysis cycle
-- `/phoenix-correct <framework-id>` — Trigger self-correction for a specific framework
-- `/phoenix-observe` — Run a 7-sense observation checkpoint
-- `/phoenix-promote <framework-id>` — Manually promote a framework to next stage
-- `/phoenix-amend <id>` — Review and vote on a pending amendment
+- `/liyu-status` — Display full evolution dashboard (soul, shadow, frameworks, senses)
+- `/liyu-evolve` — Manually trigger evolution analysis cycle
+- `/liyu-correct <framework-id>` — Trigger self-correction for a specific framework
+- `/liyu-observe` — Run a 7-sense observation checkpoint
+- `/liyu-promote <framework-id>` — Manually promote a framework to next stage
+- `/liyu-amend <id>` — Review and vote on a pending amendment
 
 ## Integration Points
 
-PHOENIX is not a standalone system — it orchestrates existing ECC infrastructure:
+鲤鱼 is not a standalone system — it orchestrates existing ECC infrastructure:
 
 - **Monitoring** → Uses ECC's PostToolUse hooks + metacog-observer agent
 - **Evolution** → Uses ECC's Stop hooks + evolution-engine agent
 - **Correction** → Uses ECC's skill-evolution health tracking + self-correct agent
 - **Memory** → Extends ECC's continuous-learning-v2 with framework lifecycle
-- **Rules** → Auto-generates `rules/phoenix/` files from validated frameworks
+- **Rules** → Auto-generates `rules/liyu/` files from validated frameworks
 - **Soul/Shadow** → Session-start hook injects into context alongside ECC rules
 
 ## Evolution Data Flow
